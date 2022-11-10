@@ -64,6 +64,7 @@ type Cashier struct {
 	LastName   string `json:"last_name"`
 	FirstName  string `json:"first_name"`
 	MiddleName string `json:"middle_name"`
+	Password   string `json:"password,omitempty"`
 }
 
 func (c *Cashier) Validate() error {
@@ -72,6 +73,7 @@ func (c *Cashier) Validate() error {
 		validation.Field(&c.FirstName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.LastName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.MiddleName, validation.Length(3, 64)),
+		validation.Field(&c.Password, validation.Required, validation.Length(6, 72)),
 	)
 }
 
