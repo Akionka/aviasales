@@ -41,13 +41,18 @@ func (r *CashierRepository) FindAll(row_count, offset int) (*[]store.CashierMode
 }
 
 func (r *CashierRepository) Update(c *store.CashierModel) error {
-	_, err := r.store.db.Exec("UPDATE сashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE login = ?",
+	_, err := r.store.db.Exec("UPDATE cashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE login = ?",
 		c.Login,
 		c.LastName,
 		c.FirstName,
 		c.MiddleName,
 		c.Login,
 	)
+	return err
+}
+
+func (r *CashierRepository) UpdatePassword(c *store.CashierModel) error {
+	_, err := r.store.db.Exec("UPDATE cashier SET password = ? WHERE login = ?", c.Password, c.Login)
 	return err
 }
 

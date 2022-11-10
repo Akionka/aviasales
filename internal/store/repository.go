@@ -21,6 +21,7 @@ type CashierRepository interface {
 	Find(login string) (*CashierModel, error)
 	FindAll(row_count, offset int) (*[]CashierModel, error)
 	Update(*CashierModel) error
+	UpdatePassword(*CashierModel) error
 	Delete(login string) error
 }
 

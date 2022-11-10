@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/akionka/aviasales/internal/store"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -109,6 +110,7 @@ func (s *server) configureRouter() {
 	secured.HandleFunc("/airports/{code}", s.handleAirportGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficeGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/cashiers/{login}", s.handleCashierGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/cashiers/{login}/password", s.handleCashierPasswordUpdate()).Methods(http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/flight_in_tickets/{dep_date}/{line_code}/{seat_id:[0-9]+}/{ticket_no:[0-9]+}", s.handleFlightInTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/flights/{dep_date}/{line_code}", s.handleFlightGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/lines/{code}", s.handleLineGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
@@ -455,6 +457,32 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 			s.respond(w, r, http.StatusOK, c)
 		}
 
+	}
+}
+
+func (s *server) handleCashierPasswordUpdate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		c := &store.CashierModel{}
+		if err := json.NewDecoder(r.Body).Decode(c); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if err := validation.Validate(c.Password, validation.Required, validation.Length(6, 72)); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		cModel := store.CashierModel{
+			Login: vars["login"],
+		}
+
+		cModel.SetPassword(c.Password)
+		if err := s.store.Cashier().UpdatePassword(&cModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
 	}
 }
 

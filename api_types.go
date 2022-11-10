@@ -73,7 +73,7 @@ func (c *Cashier) Validate() error {
 		validation.Field(&c.FirstName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.LastName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.MiddleName, validation.Length(3, 64)),
-		validation.Field(&c.Password, validation.Required, validation.Length(6, 72)),
+		validation.Field(&c.Password, validation.Length(6, 72)),
 	)
 }
 
