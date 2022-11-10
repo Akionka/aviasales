@@ -1,0 +1,47 @@
+package mysqlstore
+
+import (
+	"github.com/akionka/aviasales/internal/store"
+)
+
+type FlightRepository struct {
+	store *Store
+}
+
+func (r *FlightRepository) Find(depDate string, lineCode string) (*store.FlightModel, error) {
+	flight := &store.FlightModel{}
+	if err := r.store.db.Get(flight, "SELECT * FROM flight WHERE dep_date = ? AND line_code = ?", depDate, lineCode); err != nil {
+		return nil, err
+	}
+	return flight, nil
+}
+
+func (r *FlightRepository) FindAll(row_count, offset int) (*[]store.FlightModel, error) {
+	if row_count < 0 {
+		row_count = 0
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	flights := &[]store.FlightModel{}
+	if err := r.store.db.Select(flights, "SELECT * FROM flight ORDER BY dep_date, line_code LIMIT ?, ?", offset, row_count); err != nil {
+		return nil, err
+	}
+	return flights, nil
+}
+
+func (r *FlightRepository) Delete(depDate string, lineCode string) error {
+	res, err := r.store.db.Exec("DELETE FROM flight WHERE dep_date = ? AND line_code = ?", depDate, lineCode)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrDeletedItemDoesNotExist
+	}
+	return nil
+}
