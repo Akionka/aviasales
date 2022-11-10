@@ -41,6 +41,20 @@ func (r *PurchaseRepository) FindAll(row_count, offset int) (*[]store.PurchaseMo
 	return purchases, nil
 }
 
+func (r *PurchaseRepository) Update(p *store.PurchaseModel) error {
+	_, err := r.store.db.Exec("UPDATE purchase SET id = ?, date = ?, booking_office_id = ?, total_price = ?, contact_phone = ?, contact_email = ?, cashier_login = ? WHERE id = ?",
+		p.ID,
+		p.Date,
+		p.BookingOfficeID,
+		p.TotalPrice,
+		p.ContactPhone,
+		p.ContactEmail,
+		p.CashierLogin,
+		p.ID,
+	)
+	return err
+}
+
 func (r *PurchaseRepository) Delete(id int) error {
 	res, err := r.store.db.Exec("DELETE FROM purchase WHERE id = ?", id)
 	if err != nil {

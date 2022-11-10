@@ -37,6 +37,15 @@ func (r *LinerModelRepository) FindAll(row_count, offset int) (*[]store.LinerMod
 	return linerModels, nil
 }
 
+func (r *LinerModelRepository) Update(m *store.LinerModelModel) error {
+	_, err := r.store.db.Exec("UDATE liner_model SET iata_type_code = ?, name = ? WHERE iata_type_code = ?",
+		m.IATATypeCode,
+		m.Name,
+		m.IATATypeCode,
+	)
+	return err
+}
+
 func (r *LinerModelRepository) Delete(code string) error {
 	res, err := r.store.db.Exec("DELETE FROM liner_model WHERE iata_type_code = ?", code)
 	if err != nil {

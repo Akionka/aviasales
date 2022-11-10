@@ -41,6 +41,20 @@ func (r *TicketRepository) FindAll(row_count, offset int) (*[]store.TicketModel,
 	return tickets, nil
 }
 
+func (r *TicketRepository) Update(t *store.TicketModel) error {
+	_, err := r.store.db.Exec("UPDATE ticket SET number = ?, pass_last_name = ?, pass_given_name = ?, pass_birth_date = ?, pass_passport_number = ?, pass_sex = ?, purchase_id = ? WHERE number = ?",
+		t.Number,
+		t.PassengerLastName,
+		t.PassengerGivenName,
+		t.PassengerBirthDate,
+		t.PassengerPassportNumber,
+		t.PassengerSex,
+		t.PurchaseID,
+		t.Number,
+	)
+	return err
+}
+
 func (r *TicketRepository) Delete(number int64) error {
 	res, err := r.store.db.Exec("DELETE FROM ticket WHERE number = ?", number)
 	if err != nil {

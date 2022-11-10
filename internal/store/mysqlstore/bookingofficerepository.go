@@ -34,6 +34,11 @@ func (r *BookingOfficeRepository) FindAll(row_count, offset int) (*[]store.Booki
 	return offices, nil
 }
 
+func (r *BookingOfficeRepository) Update(o *store.BookingOfficeModel) error {
+	_, err := r.store.db.Exec("UPDATE booking_office SET id = ?, address = ?, phone_number = ? WHERE id = ?", o.ID, o.Address, o.PhoneNumber, o.ID)
+	return err
+}
+
 func (r *BookingOfficeRepository) Delete(id int) error {
 	res, err := r.store.db.Exec("DELETE FROM booking_office WHERE id = ?", id)
 	if err != nil {

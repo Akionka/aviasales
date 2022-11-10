@@ -40,6 +40,17 @@ func (r *CashierRepository) FindAll(row_count, offset int) (*[]store.CashierMode
 	return cashiers, nil
 }
 
+func (r *CashierRepository) Update(c *store.CashierModel) error {
+	_, err := r.store.db.Exec("UPDATE сashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE login = ?",
+		c.Login,
+		c.LastName,
+		c.FirstName,
+		c.MiddleName,
+		c.Login,
+	)
+	return err
+}
+
 func (r *CashierRepository) Delete(login string) error {
 	res, err := r.store.db.Exec("DELETE FROM cashier WHERE login = ?", login)
 	if err != nil {

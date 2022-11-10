@@ -271,7 +271,25 @@ func (s *server) handleAirportGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			a := &Airport{}
+			if err := json.NewDecoder(r.Body).Decode(a); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := a.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Airport().Update(&store.AirportModel{
+				IATACode: a.IATACode,
+				City:     a.City,
+				Timezone: a.Timezone,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, a)
 		}
 	}
 }
@@ -336,7 +354,25 @@ func (s *server) handleBookingOfficeGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			b := &BookingOffice{}
+			if err := json.NewDecoder(r.Body).Decode(b); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := b.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.BookingOffice().Update(&store.BookingOfficeModel{
+				ID:          b.ID,
+				Address:     b.Address,
+				PhoneNumber: b.PhoneNumber,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, b)
 		}
 	}
 }
@@ -397,6 +433,26 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			c := &Cashier{}
+			if err := json.NewDecoder(r.Body).Decode(c); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := c.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+
+			if err := s.store.Cashier().Update(&store.CashierModel{
+				Login:      c.Login,
+				LastName:   c.LastName,
+				FirstName:  c.FirstName,
+				MiddleName: c.MiddleName,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, c)
 		}
 
 	}
@@ -468,7 +524,26 @@ func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			f := &FlightInTicket{}
+			if err := json.NewDecoder(r.Body).Decode(f); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := f.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.FlightInTicket().Update(&store.FlightInTicketModel{
+				DepDate:  f.DepDate,
+				LineCode: f.LineCode,
+				SeatID:   f.SeatID,
+				TicketNo: ticketNo,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, f)
 		}
 	}
 }
@@ -529,7 +604,26 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			f := &Flight{}
+			if err := json.NewDecoder(r.Body).Decode(f); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := f.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Flight().Update(&store.FlightModel{
+				DepDate:   f.DepDate,
+				LineCode:  f.LineCode,
+				IsHot:     f.IsHot,
+				LinerCode: f.LinerCode,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, f)
 		}
 	}
 }
@@ -594,7 +688,28 @@ func (s *server) handleLineGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			l := &Line{}
+			if err := json.NewDecoder(r.Body).Decode(l); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := l.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Line().Update(&store.LineModel{
+				LineCode:   l.LineCode,
+				DepTime:    l.DepTime,
+				ArrTime:    l.ArrTime,
+				BasePrice:  l.BasePrice,
+				DepAirport: l.DepAirport,
+				ArrAirport: l.ArrAirport,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, l)
 		}
 	}
 }
@@ -651,7 +766,24 @@ func (s *server) handleLinerModelGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			m := &LinerModel{}
+			if err := json.NewDecoder(r.Body).Decode(m); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := m.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.LinerModel().Update(&store.LinerModelModel{
+				IATATypeCode: m.IATATypeCode,
+				Name:         m.Name,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, m)
 		}
 	}
 }
@@ -706,7 +838,24 @@ func (s *server) handleLinerGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			l := &Liner{}
+			if err := json.NewDecoder(r.Body).Decode(l); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := l.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Liner().Update(&store.LinerModel{
+				IATACode:  l.IATACode,
+				ModelCode: l.ModelCode,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, l)
 		}
 	}
 }
@@ -777,7 +926,29 @@ func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			p := &Purchase{}
+			if err := json.NewDecoder(r.Body).Decode(p); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := p.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Purchase().Update(&store.PurchaseModel{
+				ID:              p.ID,
+				Date:            p.Date,
+				BookingOfficeID: p.BookingOfficeID,
+				TotalPrice:      p.TotalPrice,
+				ContactPhone:    p.ContactPhone,
+				ContactEmail:    p.ContactEmail,
+				CashierLogin:    p.CashierLogin,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, p)
 		}
 	}
 }
@@ -844,7 +1015,26 @@ func (s *server) handleSeatGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			seat := &Seat{}
+			if err := json.NewDecoder(r.Body).Decode(seat); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := seat.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Seat().Update(&store.SeatModel{
+				ID:             seat.ID,
+				Number:         seat.Number,
+				Class:          seat.Class,
+				LinerModelCode: seat.LinerModelCode,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, seat)
 		}
 	}
 }
@@ -915,7 +1105,29 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodPut {
+			t := &Ticket{}
+			if err := json.NewDecoder(r.Body).Decode(t); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if err := t.Validate(); err != nil {
+				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
 
+			if err := s.store.Ticket().Update(&store.TicketModel{
+				Number:                  t.Number,
+				PassengerLastName:       t.PassengerLastName,
+				PassengerGivenName:      t.PassengerGivenName,
+				PassengerBirthDate:      t.PassengerBirthDate,
+				PassengerPassportNumber: t.PassengerPassportNumber,
+				PassengerSex:            t.PassengerSex,
+				PurchaseID:              t.PurchaseID,
+			}); err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, t)
 		}
 	}
 }

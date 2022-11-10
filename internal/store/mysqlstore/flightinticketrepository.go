@@ -46,6 +46,20 @@ func (r *FlightInTicketRepository) FindAll(row_count, offset int) (*[]store.Flig
 	return flightInTickets, nil
 }
 
+func (r *FlightInTicketRepository) Update(f *store.FlightInTicketModel) error {
+	_, err := r.store.db.Exec("UPDATE flight_in_ticket SET dep_date = ?, line_code = ?, seat_id = ?, ticket_no = ? WHERE dep_date = ? AND line_code = ? AND seat_id = ? AND ticket_no = ?",
+		f.DepDate,
+		f.LineCode,
+		f.SeatID,
+		f.TicketNo,
+		f.DepDate,
+		f.LineCode,
+		f.SeatID,
+		f.TicketNo,
+	)
+	return err
+}
+
 func (r *FlightInTicketRepository) Delete(depDate string, lineCode string, seatID int, ticketNo int64) error {
 	res, err := r.store.db.Exec("DELETE FROM flight_in_ticket WHERE dep_date = ? AND line_code = ? AND seat_id = ? AND ticket_no = ?",
 		depDate,

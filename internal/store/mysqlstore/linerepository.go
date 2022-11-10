@@ -41,6 +41,19 @@ func (r *LineRepository) FindAll(row_count, offset int) (*[]store.LineModel, err
 	return lines, nil
 }
 
+func (r *LineRepository) Update(l *store.LineModel) error {
+	_, err := r.store.db.Exec("UPDATE line SET line_code = ?, dep_time = ?, arr_time = ?, base_price = ?, dep_airport = ?, arr_airport = ? WHERE line_code = ?",
+		l.LineCode,
+		l.DepTime,
+		l.ArrTime,
+		l.BasePrice,
+		l.DepAirport,
+		l.ArrAirport,
+		l.LineCode,
+	)
+	return err
+}
+
 func (r *LineRepository) Delete(code string) error {
 	res, err := r.store.db.Exec("DELETE FROM line WHERE line_code = ?", code)
 	if err != nil {
