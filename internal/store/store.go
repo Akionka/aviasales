@@ -64,9 +64,8 @@ type LineModel struct {
 }
 
 type LinerModel struct {
-	IATACode  string      `db:"iata_code"`
-	Photo     interface{} `db:"photo"`
-	ModelCode string      `db:"model_code"`
+	IATACode  string `db:"iata_code"`
+	ModelCode string `db:"model_code"`
 }
 
 type LinerModelModel struct {

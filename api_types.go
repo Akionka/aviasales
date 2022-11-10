@@ -47,9 +47,8 @@ type Line struct {
 }
 
 type Liner struct {
-	IATACode  string      `json:"iata_code"`
-	Photo     interface{} `json:"photo"`
-	ModelCode string      `json:"model_code"`
+	IATACode  string `json:"iata_code"`
+	ModelCode string `json:"model_code"`
 }
 
 type LinerModel struct {
