@@ -104,3 +104,12 @@ type TicketModel struct {
 func (c *CashierModel) ComparePassword(password string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(c.Password), []byte(password)) == nil
 }
+
+func (c *CashierModel) SetPassword(password string) error {
+	p, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return err
+	}
+	c.Password = string(p)
+	return nil
+}
