@@ -37,11 +37,21 @@ func (r *LinerRepository) FindAll(row_count, offset int) (*[]store.LinerModel, e
 }
 
 func (r *LinerRepository) Update(l *store.LinerModel) error {
-	_, err := r.store.db.Exec("UPDATE liner SET iata_code = ?, model_code = ? WHERE iata_code = ?",
+	res, err := r.store.db.Exec("UPDATE liner SET iata_code = ?, model_code = ? WHERE iata_code = ?",
 		l.IATACode,
 		l.ModelCode,
 		l.IATACode,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 

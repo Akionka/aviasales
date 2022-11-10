@@ -8,6 +8,7 @@ import (
 )
 
 var ErrDeletedItemDoesNotExist = errors.New("the item you delete does not exist")
+var ErrUpdatedItemDoesNotExist = errors.New("the item you update does not exist")
 
 type Store struct {
 	db                       *sqlx.DB

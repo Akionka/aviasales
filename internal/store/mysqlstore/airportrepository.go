@@ -39,12 +39,22 @@ func (r *AirportRepository) FindAll(row_count, offset int) (*[]store.AirportMode
 }
 
 func (r *AirportRepository) Update(a *store.AirportModel) error {
-	_, err := r.store.db.Exec("UPDATE airport SET iata_code = ?, city = ?, timezone = ? WHERE iata_code = ?",
+	res, err := r.store.db.Exec("UPDATE airport SET iata_code = ?, city = ?, timezone = ? WHERE iata_code = ?",
 		a.IATACode,
 		a.City,
 		a.Timezone,
 		a.IATACode,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 

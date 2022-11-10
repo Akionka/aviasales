@@ -47,7 +47,7 @@ func (r *FlightInTicketRepository) FindAll(row_count, offset int) (*[]store.Flig
 }
 
 func (r *FlightInTicketRepository) Update(f *store.FlightInTicketModel) error {
-	_, err := r.store.db.Exec("UPDATE flight_in_ticket SET dep_date = ?, line_code = ?, seat_id = ?, ticket_no = ? WHERE dep_date = ? AND line_code = ? AND seat_id = ? AND ticket_no = ?",
+	res, err := r.store.db.Exec("UPDATE flight_in_ticket SET dep_date = ?, line_code = ?, seat_id = ?, ticket_no = ? WHERE dep_date = ? AND line_code = ? AND seat_id = ? AND ticket_no = ?",
 		f.DepDate,
 		f.LineCode,
 		f.SeatID,
@@ -57,6 +57,16 @@ func (r *FlightInTicketRepository) Update(f *store.FlightInTicketModel) error {
 		f.SeatID,
 		f.TicketNo,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 

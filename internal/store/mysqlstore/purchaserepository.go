@@ -42,7 +42,7 @@ func (r *PurchaseRepository) FindAll(row_count, offset int) (*[]store.PurchaseMo
 }
 
 func (r *PurchaseRepository) Update(p *store.PurchaseModel) error {
-	_, err := r.store.db.Exec("UPDATE purchase SET id = ?, date = ?, booking_office_id = ?, total_price = ?, contact_phone = ?, contact_email = ?, cashier_login = ? WHERE id = ?",
+	res, err := r.store.db.Exec("UPDATE purchase SET id = ?, date = ?, booking_office_id = ?, total_price = ?, contact_phone = ?, contact_email = ?, cashier_login = ? WHERE id = ?",
 		p.ID,
 		p.Date,
 		p.BookingOfficeID,
@@ -52,6 +52,16 @@ func (r *PurchaseRepository) Update(p *store.PurchaseModel) error {
 		p.CashierLogin,
 		p.ID,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 

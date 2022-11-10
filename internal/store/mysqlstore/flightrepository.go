@@ -42,7 +42,7 @@ func (r *FlightRepository) FindAll(row_count, offset int) (*[]store.FlightModel,
 }
 
 func (r *FlightRepository) Update(f *store.FlightModel) error {
-	_, err := r.store.db.Exec("UPDATE flight SET dep_date = ?, line_code = ?, is_hot = ?, liner_code = ? WHERE dep_date = ? AND line_code = ?",
+	res, err := r.store.db.Exec("UPDATE flight SET dep_date = ?, line_code = ?, is_hot = ?, liner_code = ? WHERE dep_date = ? AND line_code = ?",
 		f.DepDate,
 		f.LineCode,
 		f.IsHot,
@@ -50,6 +50,16 @@ func (r *FlightRepository) Update(f *store.FlightModel) error {
 		f.DepDate,
 		f.LineCode,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 

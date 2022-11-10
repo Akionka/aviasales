@@ -42,7 +42,7 @@ func (r *TicketRepository) FindAll(row_count, offset int) (*[]store.TicketModel,
 }
 
 func (r *TicketRepository) Update(t *store.TicketModel) error {
-	_, err := r.store.db.Exec("UPDATE ticket SET number = ?, pass_last_name = ?, pass_given_name = ?, pass_birth_date = ?, pass_passport_number = ?, pass_sex = ?, purchase_id = ? WHERE number = ?",
+	res, err := r.store.db.Exec("UPDATE ticket SET number = ?, pass_last_name = ?, pass_given_name = ?, pass_birth_date = ?, pass_passport_number = ?, pass_sex = ?, purchase_id = ? WHERE number = ?",
 		t.Number,
 		t.PassengerLastName,
 		t.PassengerGivenName,
@@ -52,6 +52,16 @@ func (r *TicketRepository) Update(t *store.TicketModel) error {
 		t.PurchaseID,
 		t.Number,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 

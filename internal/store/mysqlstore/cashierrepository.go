@@ -41,13 +41,23 @@ func (r *CashierRepository) FindAll(row_count, offset int) (*[]store.CashierMode
 }
 
 func (r *CashierRepository) Update(c *store.CashierModel) error {
-	_, err := r.store.db.Exec("UPDATE cashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE login = ?",
+	res, err := r.store.db.Exec("UPDATE cashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE login = ?",
 		c.Login,
 		c.LastName,
 		c.FirstName,
 		c.MiddleName,
 		c.Login,
 	)
+	if err != nil {
+		return err
+	}
+	count, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if count == 0 {
+		return ErrUpdatedItemDoesNotExist
+	}
 	return err
 }
 
