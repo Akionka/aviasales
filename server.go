@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -15,9 +16,10 @@ import (
 )
 
 var (
-	tokenSecret                 = []byte("thisisthemostsecrettokenintheentireuniverse")
-	errBadAuthorizationToken    = errors.New("bad authorization token")
-	errIncorrectLoginOrPassword = errors.New("incorrect login or password")
+	tokenSecret                  = []byte("thisisthemostsecrettokenintheentireuniverse")
+	errBadAuthorizationToken     = errors.New("bad authorization token")
+	errIncorrectLoginOrPassword  = errors.New("incorrect login or password")
+	errRequestedItemDoesNotExist = errors.New("requested item does not exist")
 )
 
 const (
@@ -54,7 +56,7 @@ func (s *server) configureRouter() {
 
 	s.router.Use(handlers.CORS(
 		handlers.AllowedHeaders([]string{"Authorization", "Content-Type"}),
-		handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "OPTIONS"}),
+		handlers.AllowedMethods([]string{http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodPost, http.MethodOptions}),
 		handlers.AllowedOrigins([]string{"http://127.0.0.1:5500"})))
 
 	s.router.HandleFunc("/session", s.handleSessionsCreate()).Methods("POST", "OPTIONS")
@@ -74,35 +76,47 @@ func (s *server) configureRouter() {
 			s.respond(w, r, 200, cashierResponse)
 			return
 		}
-		s.error(w, r, http.StatusInternalServerError, errors.New("bad"))
-	}).Methods("GET", "OPTIONS")
+		s.error(w, r, http.StatusInternalServerError, nil)
+	}).Methods(http.MethodGet, http.MethodOptions)
 
-	securedGet := secured.Methods("GET", "OPTIONS").Subrouter()
+	securedGet := secured.Methods(http.MethodGet, http.MethodOptions).Subrouter()
 	securedGet.Use(s.paginateMiddleware)
 
-	securedGet.HandleFunc("/airports", s.handleAirportsGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/booking_offices", s.handleBookingOfficesGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/cashiers", s.handleCashiersGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/flights", s.handleFlightsGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/lines", s.handleLinesGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/liner_models", s.handleLinerModelsGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/liners", s.handleLinersGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/purchases", s.handlePurchasesGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/seats", s.handleSeatsGet()).Methods("GET", "OPTIONS")
-	securedGet.HandleFunc("/tickets", s.handleTicketsGet()).Methods("GET", "OPTIONS")
+	securedGet.HandleFunc("/airports", s.handleAirportsGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/booking_offices", s.handleBookingOfficesGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/cashiers", s.handleCashiersGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/flights", s.handleFlightsGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/lines", s.handleLinesGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/liner_models", s.handleLinerModelsGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/liners", s.handleLinersGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/purchases", s.handlePurchasesGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/seats", s.handleSeatsGet()).Methods(http.MethodGet, http.MethodOptions)
+	securedGet.HandleFunc("/tickets", s.handleTicketsGet()).Methods(http.MethodGet, http.MethodOptions)
 
-	secured.HandleFunc("/airports/{code}", s.handleAirportsDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficesDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/cashiers/{login}", s.handleCashiersDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/flight_in_tickets/{dep_date}/{line_code}/{seat_id:[0-9]+}/{ticket_no:[0-9]+}", s.handleFlightInTicketsDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/flights/{dep_date}/{line_code}", s.handleFlightsDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/lines/{code}", s.handleLinesDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/liner_models/{code}", s.handleLinerModelsDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/liners/{code}", s.handleLinersDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/purchases/{id:[0-9]+}", s.handlePurchasesDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/seats/{id:[0-9]+}", s.handleSeatsDelete()).Methods("DELETE", "OPTIONS")
-	secured.HandleFunc("/tickets/{id:[0-9]+}", s.handleTicketsDelete()).Methods("DELETE", "OPTIONS")
+	// secured.HandleFunc("/booking_offices", s.handleBookingOfficesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/airports", s.handleAirportsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/cashiers", s.handleCashiersCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/flights", s.handleFlightsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/lines", s.handleLinesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/liner_models", s.handleLinerModelsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/liners", s.handleLinersCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/purchases", s.handlePurchasesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/seats", s.handleSeatsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	// secured.HandleFunc("/tickets", s.handleTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
+
+	secured.HandleFunc("/airports/{code}", s.handleAirportGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficeGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/cashiers/{login}", s.handleCashierGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/flight_in_tickets/{dep_date}/{line_code}/{seat_id:[0-9]+}/{ticket_no:[0-9]+}", s.handleFlightInTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/flights/{dep_date}/{line_code}", s.handleFlightGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/lines/{code}", s.handleLineGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/liner_models/{code}", s.handleLinerModelGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/liners/{code}", s.handleLinerGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/purchases/{id:[0-9]+}", s.handlePurchaseGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/seats/{id:[0-9]+}", s.handleSeatGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/tickets/{id:[0-9]+}", s.handleTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 }
 
 func (s *server) authenticateUser(next http.Handler) http.Handler {
@@ -224,15 +238,41 @@ func (s *server) handleAirportsGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleAirportsDelete() http.HandlerFunc {
+func (s *server) handleAirportGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := s.store.Airport().Delete(vars["code"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			a, err := s.store.Airport().Find(vars["code"])
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Airport{
+				IATACode: a.IATACode,
+				City:     a.City,
+				Timezone: a.Timezone,
+			})
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err := s.store.Airport().Delete(vars["code"])
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -258,19 +298,46 @@ func (s *server) handleBookingOfficesGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleBookingOfficesDelete() http.HandlerFunc {
+func (s *server) handleBookingOfficeGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
-		}
-		err = s.store.BookingOffice().Delete(id)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodGet {
+			o, err := s.store.BookingOffice().Find(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &BookingOffice{
+				ID:          o.ID,
+				Address:     o.Address,
+				PhoneNumber: o.PhoneNumber,
+			})
+			return
+		}
+
+		if r.Method == http.MethodDelete {
+			err = s.store.BookingOffice().Delete(id)
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -296,15 +363,42 @@ func (s *server) handleCashiersGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleCashiersDelete() http.HandlerFunc {
+func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := s.store.Cashier().Delete(vars["login"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			c, err := s.store.Cashier().Find(vars["login"])
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Cashier{
+				Login:      c.Login,
+				LastName:   c.LastName,
+				FirstName:  c.FirstName,
+				MiddleName: c.MiddleName,
+			})
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err := s.store.Cashier().Delete(vars["login"])
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+		}
+
 	}
 }
 
@@ -330,23 +424,52 @@ func (s *server) handleFlightInTicketsGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleFlightInTicketsDelete() http.HandlerFunc {
+func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["seat_id"])
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
+			return
 		}
 		ticketNo, err := strconv.ParseInt(vars["ticket_no"], 10, 64)
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
-		}
-		err = s.store.FlightInTicket().Delete(vars["dep_date"], vars["line_code"], id, ticketNo)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodGet {
+			f, err := s.store.FlightInTicket().Find(vars["dep_date"], vars["line_code"], id, ticketNo)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &FlightInTicket{
+				DepDate:  f.DepDate,
+				LineCode: f.LineCode,
+				SeatID:   f.SeatID,
+				TicketNo: f.TicketNo,
+			})
+			return
+		}
+
+		if r.Method == http.MethodDelete {
+			err = s.store.FlightInTicket().Delete(vars["dep_date"], vars["line_code"], id, ticketNo)
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -372,15 +495,42 @@ func (s *server) handleFlightsGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleFlightsDelete() http.HandlerFunc {
+func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := s.store.Flight().Delete(vars["dep_date"], vars["line_code"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			f, err := s.store.Flight().Find(vars["dep_date"], vars["line_code"])
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Flight{
+				DepDate:   f.DepDate,
+				LineCode:  f.LineCode,
+				IsHot:     f.IsHot,
+				LinerCode: f.LinerCode,
+			})
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err := s.store.Flight().Delete(vars["dep_date"], vars["line_code"])
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -408,15 +558,44 @@ func (s *server) handleLinesGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleLinesDelete() http.HandlerFunc {
+func (s *server) handleLineGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := s.store.Line().Delete(vars["code"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			l, err := s.store.Line().Find(vars["code"])
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Line{
+				LineCode:   l.LineCode,
+				DepTime:    l.DepTime,
+				ArrTime:    l.ArrTime,
+				BasePrice:  l.BasePrice,
+				DepAirport: l.DepAirport,
+				ArrAirport: l.ArrAirport,
+			})
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err := s.store.Line().Delete(vars["code"])
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -440,15 +619,40 @@ func (s *server) handleLinerModelsGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleLinerModelsDelete() http.HandlerFunc {
+func (s *server) handleLinerModelGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := s.store.LinerModel().Delete(vars["code"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			m, err := s.store.LinerModel().Find(vars["code"])
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &LinerModel{
+				IATATypeCode: m.IATATypeCode,
+				Name:         m.Name,
+			})
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err := s.store.LinerModel().Delete(vars["code"])
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+			return
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -472,15 +676,38 @@ func (s *server) handleLinersGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleLinersDelete() http.HandlerFunc {
+func (s *server) handleLinerGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		err := s.store.Liner().Delete(vars["code"])
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
+
+		if r.Method == http.MethodGet {
+			l, err := s.store.Liner().Find(vars["code"])
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Liner{
+				IATACode:  l.IATACode,
+				ModelCode: l.ModelCode,
+			})
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err := s.store.Liner().Delete(vars["code"])
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -507,9 +734,10 @@ func (s *server) handlePurchasesGet() http.HandlerFunc {
 		}
 		s.respond(w, r, 200, purchasesResponse)
 	}
+
 }
 
-func (s *server) handlePurchasesDelete() http.HandlerFunc {
+func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["id"])
@@ -517,12 +745,40 @@ func (s *server) handlePurchasesDelete() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
-		err = s.store.Purchase().Delete(id)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
-			return
+
+		if r.Method == http.MethodGet {
+			p, err := s.store.Purchase().Find(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Purchase{
+				ID:              p.ID,
+				Date:            p.Date,
+				BookingOfficeID: p.BookingOfficeID,
+				TotalPrice:      p.TotalPrice,
+				ContactPhone:    p.ContactPhone,
+				ContactEmail:    p.ContactEmail,
+				CashierLogin:    p.CashierLogin,
+			})
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodDelete {
+			err = s.store.Purchase().Delete(id)
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
+		}
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -545,10 +801,12 @@ func (s *server) handleSeatsGet() http.HandlerFunc {
 			}
 		}
 		s.respond(w, r, 200, seatsResponse)
+
 	}
+
 }
 
-func (s *server) handleSeatsDelete() http.HandlerFunc {
+func (s *server) handleSeatGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		id, err := strconv.Atoi(vars["id"])
@@ -556,12 +814,38 @@ func (s *server) handleSeatsDelete() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
-		err = s.store.Seat().Delete(id)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			p, err := s.store.Seat().Find(id)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Seat{
+				ID:             p.ID,
+				Number:         p.Number,
+				Class:          p.Class,
+				LinerModelCode: p.LinerModelCode,
+			})
+		}
+
+		if r.Method == http.MethodDelete {
+			err = s.store.Seat().Delete(id)
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
@@ -590,20 +874,49 @@ func (s *server) handleTicketsGet() http.HandlerFunc {
 	}
 }
 
-func (s *server) handleTicketsDelete() http.HandlerFunc {
+func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id, err := strconv.Atoi(vars["id"])
+		ticketNo, err := strconv.ParseInt(vars["id"], 10, 64)
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
-		err = s.store.Seat().Delete(id)
-		if err != nil {
-			s.error(w, r, http.StatusInternalServerError, err)
+
+		if r.Method == http.MethodGet {
+			p, err := s.store.Ticket().Find(ticketNo)
+			if err != nil {
+				if err == sql.ErrNoRows {
+					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
+					return
+				}
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusOK, &Ticket{
+				Number:                  p.Number,
+				PassengerLastName:       p.PassengerLastName,
+				PassengerGivenName:      p.PassengerGivenName,
+				PassengerBirthDate:      p.PassengerBirthDate,
+				PassengerPassportNumber: p.PassengerPassportNumber,
+				PassengerSex:            p.PassengerSex,
+				PurchaseID:              p.PurchaseID,
+			})
+		}
+
+		if r.Method == http.MethodDelete {
+			err = s.store.Ticket().Delete(ticketNo)
+			if err != nil {
+				s.error(w, r, http.StatusInternalServerError, err)
+				return
+			}
+			s.respond(w, r, http.StatusNoContent, nil)
 			return
 		}
-		s.respond(w, r, http.StatusNoContent, nil)
+
+		if r.Method == http.MethodPut {
+
+		}
 	}
 }
 
