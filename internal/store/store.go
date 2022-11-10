@@ -42,16 +42,16 @@ type CashierModel struct {
 
 type FlightModel struct {
 	DepDate   *time.Time `db:"dep_date"`
-	LineCode  string    `db:"line_code"`
-	IsHot     bool      `db:"is_hot"`
-	LinerCode string    `db:"liner_code"`
+	LineCode  string     `db:"line_code"`
+	IsHot     bool       `db:"is_hot"`
+	LinerCode string     `db:"liner_code"`
 }
 
 type FlightInTicketModel struct {
-	DepDate  string `db:"dep_date"`
-	LineCode string `db:"line_code"`
-	SeatID   int    `db:"seat_id"`
-	TicketNo int64  `db:"ticket_no"`
+	DepDate  *time.Time `db:"dep_date"`
+	LineCode string     `db:"line_code"`
+	SeatID   int        `db:"seat_id"`
+	TicketNo int64      `db:"ticket_no"`
 }
 
 type LineModel struct {

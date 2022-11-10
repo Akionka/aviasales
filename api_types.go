@@ -31,10 +31,11 @@ type Flight struct {
 }
 
 type FlightInTicket struct {
-	DepDate  string `json:"dep_date"`
-	LineCode string `json:"line_code"`
-	SeatID   int    `json:"seat_id"`
-	TicketNo int64  `json:"ticket_no"`
+	DepDate  *time.Time `json:"dep_date"`
+	LineCode string     `json:"line_code"`
+	SeatID   int        `json:"seat_id"`
+	TicketNo int64      `json:"ticket_no"`
+}
 }
 
 type Line struct {
