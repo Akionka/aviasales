@@ -11,4 +11,8 @@ require (
 	golang.org/x/crypto v0.2.0
 )
 
-require github.com/felixge/httpsnoop v1.0.3 // indirect
+require (
+	github.com/asaskevich/govalidator v0.0.0-20200108200545-475eaeb16496 // indirect
+	github.com/felixge/httpsnoop v1.0.3 // indirect
+	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
+)

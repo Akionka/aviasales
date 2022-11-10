@@ -74,13 +74,13 @@ type LinerModelModel struct {
 }
 
 type PurchaseModel struct {
-	ID              int     `db:"id"`
-	Date            string  `db:"date"`
-	BookingOfficeID int     `db:"booking_office_id"`
-	TotalPrice      float64 `db:"total_price"`
-	ContactPhone    string  `db:"contact_phone"`
-	ContactEmail    string  `db:"contact_email"`
-	CashierLogin    string  `db:"cashier_login"`
+	ID              int        `db:"id"`
+	Date            *time.Time `db:"date"`
+	BookingOfficeID int        `db:"booking_office_id"`
+	TotalPrice      float64    `db:"total_price"`
+	ContactPhone    string     `db:"contact_phone"`
+	ContactEmail    string     `db:"contact_email"`
+	CashierLogin    string     `db:"cashier_login"`
 }
 
 type SeatModel struct {
@@ -91,13 +91,13 @@ type SeatModel struct {
 }
 
 type TicketModel struct {
-	Number                  int64  `db:"number"`
-	PassengerLastName       string `db:"pass_last_name"`
-	PassengerGivenName      string `db:"pass_given_name"`
-	PassengerBirthDate      string `db:"pass_birth_date"`
-	PassengerPassportNumber string `db:"pass_passport_number"`
-	PassengerSex            uint8  `db:"pass_sex"`
-	PurchaseID              int    `db:"purchase_id"`
+	Number                  int64      `db:"number"`
+	PassengerLastName       string     `db:"pass_last_name"`
+	PassengerGivenName      string     `db:"pass_given_name"`
+	PassengerBirthDate      *time.Time `db:"pass_birth_date"`
+	PassengerPassportNumber string     `db:"pass_passport_number"`
+	PassengerSex            uint8      `db:"pass_sex"`
+	PurchaseID              int        `db:"purchase_id"`
 }
 
 // ComparePassword returns true if the password matches and false otherwise
