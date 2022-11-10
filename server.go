@@ -94,17 +94,17 @@ func (s *server) configureRouter() {
 	securedGet.HandleFunc("/seats", s.handleSeatsGet()).Methods(http.MethodGet, http.MethodOptions)
 	securedGet.HandleFunc("/tickets", s.handleTicketsGet()).Methods(http.MethodGet, http.MethodOptions)
 
-	// secured.HandleFunc("/booking_offices", s.handleBookingOfficesCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/airports", s.handleAirportsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/cashiers", s.handleCashiersCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/flights", s.handleFlightsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/lines", s.handleLinesCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/liner_models", s.handleLinerModelsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/liners", s.handleLinersCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/purchases", s.handlePurchasesCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/seats", s.handleSeatsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	// secured.HandleFunc("/tickets", s.handleTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/airports", s.handleAirportsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/booking_offices", s.handleBookingOfficesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/cashiers", s.handleCashiersCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/flights", s.handleFlightsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/lines", s.handleLinesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/liner_models", s.handleLinerModelsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/liners", s.handleLinersCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/purchases", s.handlePurchasesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/seats", s.handleSeatsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	secured.HandleFunc("/tickets", s.handleTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
 
 	secured.HandleFunc("/airports/{code}", s.handleAirportGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficeGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
@@ -917,6 +917,304 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 		if r.Method == http.MethodPut {
 
 		}
+	}
+}
+
+func (s *server) handleAirportsCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		a := &Airport{}
+		if err := json.NewDecoder(r.Body).Decode(a); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := a.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		aModel := &store.AirportModel{
+			IATACode: a.IATACode,
+			City:     a.City,
+			Timezone: a.Timezone,
+		}
+
+		if err := s.store.Airport().Create(aModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, a)
+	}
+}
+
+func (s *server) handleBookingOfficesCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		o := &BookingOffice{}
+		if err := json.NewDecoder(r.Body).Decode(o); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := o.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		oModel := &store.BookingOfficeModel{
+			ID:          o.ID,
+			Address:     o.Address,
+			PhoneNumber: o.PhoneNumber,
+		}
+
+		if err := s.store.BookingOffice().Create(oModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, o)
+	}
+}
+
+func (s *server) handleCashiersCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		c := &Cashier{}
+		if err := json.NewDecoder(r.Body).Decode(c); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := c.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		cModel := &store.CashierModel{
+			Login:      c.Login,
+			LastName:   c.LastName,
+			FirstName:  c.FirstName,
+			MiddleName: c.MiddleName,
+		}
+		cModel.SetPassword(c.Password)
+
+		if err := s.store.Cashier().Create(cModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, c)
+	}
+}
+
+func (s *server) handleFlightInTicketsCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f := &FlightInTicket{}
+		if err := json.NewDecoder(r.Body).Decode(f); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := f.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		fModel := &store.FlightInTicketModel{
+			DepDate:  f.DepDate,
+			LineCode: f.LineCode,
+			SeatID:   f.SeatID,
+			TicketNo: f.TicketNo,
+		}
+
+		if err := s.store.FlightInTicket().Create(fModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, f)
+	}
+}
+
+func (s *server) handleFlightsCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		f := &Flight{}
+		if err := json.NewDecoder(r.Body).Decode(f); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := f.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		fModel := &store.FlightModel{
+			DepDate:   f.DepDate,
+			LineCode:  f.LineCode,
+			IsHot:     f.IsHot,
+			LinerCode: f.LinerCode,
+		}
+
+		if err := s.store.Flight().Create(fModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, f)
+	}
+}
+
+func (s *server) handleLinesCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := &Line{}
+		if err := json.NewDecoder(r.Body).Decode(l); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := l.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		lModel := &store.LineModel{
+			LineCode:   l.LineCode,
+			DepTime:    l.DepTime,
+			ArrTime:    l.ArrTime,
+			BasePrice:  l.BasePrice,
+			DepAirport: l.DepAirport,
+			ArrAirport: l.ArrAirport,
+		}
+
+		if err := s.store.Line().Create(lModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, l)
+	}
+}
+
+func (s *server) handleLinerModelsCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		m := &LinerModel{}
+		if err := json.NewDecoder(r.Body).Decode(m); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := m.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		mModel := &store.LinerModelModel{
+			IATATypeCode: m.IATATypeCode,
+			Name:         m.Name,
+		}
+
+		if err := s.store.LinerModel().Create(mModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, m)
+	}
+}
+
+func (s *server) handleLinersCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		l := &Liner{}
+		if err := json.NewDecoder(r.Body).Decode(l); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := l.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		lModel := &store.LinerModel{
+			IATACode:  l.IATACode,
+			ModelCode: l.ModelCode,
+		}
+
+		if err := s.store.Liner().Create(lModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, l)
+	}
+}
+
+func (s *server) handlePurchasesCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := &Purchase{}
+		if err := json.NewDecoder(r.Body).Decode(p); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := p.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		pModel := &store.PurchaseModel{
+			ID:              p.ID,
+			Date:            p.Date,
+			BookingOfficeID: p.BookingOfficeID,
+			TotalPrice:      p.TotalPrice,
+			ContactPhone:    p.ContactPhone,
+			ContactEmail:    p.ContactEmail,
+			CashierLogin:    p.CashierLogin,
+		}
+
+		if err := s.store.Purchase().Create(pModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, p)
+	}
+}
+
+func (s *server) handleSeatsCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		seat := &Seat{}
+		if err := json.NewDecoder(r.Body).Decode(seat); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := seat.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		seatModel := &store.SeatModel{
+			ID:             seat.ID,
+			Number:         seat.Number,
+			Class:          seat.Class,
+			LinerModelCode: seat.LinerModelCode,
+		}
+
+		if err := s.store.Seat().Create(seatModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, s)
+	}
+}
+
+func (s *server) handleTicketsCreate() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		t := &Ticket{}
+		if err := json.NewDecoder(r.Body).Decode(t); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		if err := t.Validate(); err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+		tModel := &store.TicketModel{
+			Number:                  t.Number,
+			PassengerLastName:       t.PassengerLastName,
+			PassengerGivenName:      t.PassengerGivenName,
+			PassengerBirthDate:      t.PassengerBirthDate,
+			PassengerPassportNumber: t.PassengerPassportNumber,
+			PassengerSex:            t.PassengerSex,
+			PurchaseID:              t.PurchaseID,
+		}
+		if err := s.store.Ticket().Create(tModel); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, t)
 	}
 }
 

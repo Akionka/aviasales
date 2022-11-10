@@ -6,6 +6,14 @@ type LinerRepository struct {
 	store *Store
 }
 
+func (r *LinerRepository) Create(l *store.LinerModel) error {
+	_, err := r.store.db.Exec("INSERT INTO liner (iata_code, model_code) VALUES (?, ?)",
+		l.IATACode,
+		l.ModelCode,
+	)
+	return err
+}
+
 func (r *LinerRepository) Find(code string) (*store.LinerModel, error) {
 	liner := &store.LinerModel{}
 	if err := r.store.db.Get(liner, "SELECT * FROM liner WHERE iata_code = ?", code); err != nil {

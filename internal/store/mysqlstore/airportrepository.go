@@ -6,6 +6,15 @@ type AirportRepository struct {
 	store *Store
 }
 
+func (r *AirportRepository) Create(a *store.AirportModel) error {
+	_, err := r.store.db.Exec("INSERT INTO airport (iata_code, city, timezone) VALUES (?, ?, ?)",
+		a.IATACode,
+		a.City,
+		a.Timezone,
+	)
+	return err
+}
+
 func (r *AirportRepository) Find(code string) (*store.AirportModel, error) {
 	airport := &store.AirportModel{}
 	if err := r.store.db.Get(airport, "SELECT * FROM airport WHERE iata_code = ?", code); err != nil {

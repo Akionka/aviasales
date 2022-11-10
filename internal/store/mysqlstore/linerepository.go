@@ -6,6 +6,18 @@ type LineRepository struct {
 	store *Store
 }
 
+func (r *LineRepository) Create(l *store.LineModel) error {
+	_, err := r.store.db.Exec("INSERT INTO line (line_code, dep_time, arr_time, base_price, dep_airport, arr_airport) VALUES (?, ?, ?, ?, ?, ?)",
+		l.LineCode,
+		l.DepTime,
+		l.ArrTime,
+		l.BasePrice,
+		l.DepAirport,
+		l.ArrAirport,
+	)
+	return err
+}
+
 func (r *LineRepository) Find(code string) (*store.LineModel, error) {
 	line := &store.LineModel{}
 	if err := r.store.db.Get(line, "SELECT * FROM line WHERE line_code = ?", code); err != nil {

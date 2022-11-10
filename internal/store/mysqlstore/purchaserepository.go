@@ -6,6 +6,19 @@ type PurchaseRepository struct {
 	store *Store
 }
 
+func (r *PurchaseRepository) Create(p *store.PurchaseModel) error {
+	_, err := r.store.db.Exec("INSERT INTO purchase (id, date, booking_office_id, total_price, contact_phone, contact_email, cashier_login) VALUES (?, ?, ?, ?, ?, ?, ?)",
+		p.ID,
+		p.Date,
+		p.BookingOfficeID,
+		p.TotalPrice,
+		p.ContactPhone,
+		p.ContactEmail,
+		p.CashierLogin,
+	)
+	return err
+}
+
 func (r *PurchaseRepository) Find(id int) (*store.PurchaseModel, error) {
 	purchase := &store.PurchaseModel{}
 	if err := r.store.db.Get(purchase, "SELECT * FROM purchase WHERE id = ?", id); err != nil {

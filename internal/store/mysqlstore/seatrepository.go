@@ -6,6 +6,16 @@ type SeatRepository struct {
 	store *Store
 }
 
+func (r *SeatRepository) Create(s *store.SeatModel) error {
+	_, err := r.store.db.Exec("INSERT INTO seat (id, number, class, liner_model_class) VALUES (?, ?, ?, ?)",
+		s.ID,
+		s.Number,
+		s.Class,
+		s.LinerModelCode,
+	)
+	return err
+}
+
 func (r *SeatRepository) Find(id int) (*store.SeatModel, error) {
 	seat := &store.SeatModel{}
 	if err := r.store.db.Get(seat, "SELECT * FROM seat WHERE id = ?", id); err != nil {

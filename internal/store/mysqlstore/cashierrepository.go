@@ -6,6 +6,17 @@ type CashierRepository struct {
 	store *Store
 }
 
+func (r *CashierRepository) Create(c *store.CashierModel) error {
+	_, err := r.store.db.Exec("INSERT INTO сashier (login, last_name, first_name, middle_name, password) VALUES (?, ?, ?, ?, ?)",
+		c.Login,
+		c.LastName,
+		c.FirstName,
+		c.MiddleName,
+		c.Password,
+	)
+	return err
+}
+
 func (r *CashierRepository) Find(login string) (*store.CashierModel, error) {
 	cashier := &store.CashierModel{}
 	if err := r.store.db.Get(cashier, "SELECT * FROM cashier WHERE login = ?", login); err != nil {

@@ -6,6 +6,11 @@ type BookingOfficeRepository struct {
 	store *Store
 }
 
+func (r *BookingOfficeRepository) Create(o *store.BookingOfficeModel) error {
+	_, err := r.store.db.Exec("INSERT INTO booking_office (id, address, phone_number) VALUES (?, ?, ?)", o.ID, o.Address, o.PhoneNumber)
+	return err
+}
+
 func (r *BookingOfficeRepository) Find(id int) (*store.BookingOfficeModel, error) {
 	office := &store.BookingOfficeModel{}
 	if err := r.store.db.Get(office, "SELECT * FROM booking_office WHERE id = ?", id); err != nil {

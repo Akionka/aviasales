@@ -8,6 +8,16 @@ type FlightRepository struct {
 	store *Store
 }
 
+func (r *FlightRepository) Create(f *store.FlightModel) error {
+	_, err := r.store.db.Exec("INSERT INTO flight (dep_date, line_code, is_hot, liner_code) VALUES (?, ?, ?, ?)",
+		f.DepDate,
+		f.LineCode,
+		f.IsHot,
+		f.LinerCode,
+	)
+	return err
+}
+
 func (r *FlightRepository) Find(depDate string, lineCode string) (*store.FlightModel, error) {
 	flight := &store.FlightModel{}
 	if err := r.store.db.Get(flight, "SELECT * FROM flight WHERE dep_date = ? AND line_code = ?", depDate, lineCode); err != nil {
