@@ -8,7 +8,7 @@ type LineRepository struct {
 
 func (r *LineRepository) Find(code string) (*store.LineModel, error) {
 	line := &store.LineModel{}
-	if err := r.store.db.Get(line, "SELECT * FROM flight line_code = ?", code); err != nil {
+	if err := r.store.db.Get(line, "SELECT * FROM line WHERE line_code = ?", code); err != nil {
 		return nil, err
 	}
 	return line, nil

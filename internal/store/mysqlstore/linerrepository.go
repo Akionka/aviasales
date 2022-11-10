@@ -8,7 +8,7 @@ type LinerRepository struct {
 
 func (r *LinerRepository) Find(code string) (*store.LinerModel, error) {
 	liner := &store.LinerModel{}
-	if err := r.store.db.Select(liner, "SELECT * FROM liner WHERE iata_code = ?", code); err != nil {
+	if err := r.store.db.Get(liner, "SELECT * FROM liner WHERE iata_code = ?", code); err != nil {
 		return nil, err
 	}
 	return liner, nil
