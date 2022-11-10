@@ -242,6 +242,7 @@ func (s *server) handleBookingOfficesGet() http.HandlerFunc {
 		offices, err := s.store.BookingOffice().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		officeResponse := make([]BookingOffice, len(*offices))
@@ -279,6 +280,7 @@ func (s *server) handleCashiersGet() http.HandlerFunc {
 		cashiers, err := s.store.Cashier().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		cashierResponse := make([]Cashier, len(*cashiers))
@@ -312,6 +314,7 @@ func (s *server) handleFlightInTicketsGet() http.HandlerFunc {
 		flightInTickets, err := s.store.FlightInTicket().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		flightInTicketsResponse := make([]FlightInTicket, len(*flightInTickets))
@@ -353,6 +356,7 @@ func (s *server) handleFlightsGet() http.HandlerFunc {
 		flights, err := s.store.Flight().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		flightsResponse := make([]Flight, len(*flights))
@@ -386,6 +390,7 @@ func (s *server) handleLinesGet() http.HandlerFunc {
 		lines, err := s.store.Line().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		linesResponse := make([]Line, len(*lines))
@@ -421,6 +426,7 @@ func (s *server) handleLinerModelsGet() http.HandlerFunc {
 		models, err := s.store.LinerModel().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		modelsResponse := make([]LinerModel, len(*models))
@@ -452,6 +458,7 @@ func (s *server) handleLinersGet() http.HandlerFunc {
 		liners, err := s.store.Liner().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		linersResponse := make([]Liner, len(*liners))
@@ -483,6 +490,7 @@ func (s *server) handlePurchasesGet() http.HandlerFunc {
 		purchases, err := s.store.Purchase().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		purchasesResponse := make([]Purchase, len(*purchases))
@@ -524,6 +532,7 @@ func (s *server) handleSeatsGet() http.HandlerFunc {
 		seats, err := s.store.Seat().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		seatsResponse := make([]Seat, len(*seats))
@@ -562,6 +571,7 @@ func (s *server) handleTicketsGet() http.HandlerFunc {
 		ticket, err := s.store.Ticket().FindAll(p.rowCount, (p.page-1)*p.rowCount)
 		if err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
+			return
 		}
 
 		ticketsResponse := make([]Ticket, len(*ticket))
