@@ -1144,13 +1144,11 @@ func (s *server) handleAirportsCreate() http.HandlerFunc {
 			return
 		}
 
-		aModel := &store.AirportModel{
+		if err := s.store.Airport().Create(&store.AirportModel{
 			IATACode: a.IATACode,
 			City:     a.City,
 			Timezone: a.Timezone,
-		}
-
-		if err := s.store.Airport().Create(aModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1170,13 +1168,11 @@ func (s *server) handleBookingOfficesCreate() http.HandlerFunc {
 			return
 		}
 
-		oModel := &store.BookingOfficeModel{
+		if err := s.store.BookingOffice().Create(&store.BookingOfficeModel{
 			ID:          o.ID,
 			Address:     o.Address,
 			PhoneNumber: o.PhoneNumber,
-		}
-
-		if err := s.store.BookingOffice().Create(oModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1202,7 +1198,10 @@ func (s *server) handleCashiersCreate() http.HandlerFunc {
 			FirstName:  c.FirstName,
 			MiddleName: c.MiddleName,
 		}
-		cModel.SetPassword(c.Password)
+		if err := cModel.SetPassword(c.Password); err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
 
 		if err := s.store.Cashier().Create(cModel); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
@@ -1224,14 +1223,12 @@ func (s *server) handleFlightInTicketsCreate() http.HandlerFunc {
 			return
 		}
 
-		fModel := &store.FlightInTicketModel{
+		if err := s.store.FlightInTicket().Create(&store.FlightInTicketModel{
 			DepDate:  f.DepDate,
 			LineCode: f.LineCode,
 			SeatID:   f.SeatID,
 			TicketNo: f.TicketNo,
-		}
-
-		if err := s.store.FlightInTicket().Create(fModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1251,14 +1248,12 @@ func (s *server) handleFlightsCreate() http.HandlerFunc {
 			return
 		}
 
-		fModel := &store.FlightModel{
+		if err := s.store.Flight().Create(&store.FlightModel{
 			DepDate:   f.DepDate,
 			LineCode:  f.LineCode,
 			IsHot:     f.IsHot,
 			LinerCode: f.LinerCode,
-		}
-
-		if err := s.store.Flight().Create(fModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1278,16 +1273,14 @@ func (s *server) handleLinesCreate() http.HandlerFunc {
 			return
 		}
 
-		lModel := &store.LineModel{
+		if err := s.store.Line().Create(&store.LineModel{
 			LineCode:   l.LineCode,
 			DepTime:    l.DepTime,
 			ArrTime:    l.ArrTime,
 			BasePrice:  l.BasePrice,
 			DepAirport: l.DepAirport,
 			ArrAirport: l.ArrAirport,
-		}
-
-		if err := s.store.Line().Create(lModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1307,12 +1300,10 @@ func (s *server) handleLinerModelsCreate() http.HandlerFunc {
 			return
 		}
 
-		mModel := &store.LinerModelModel{
+		if err := s.store.LinerModel().Create(&store.LinerModelModel{
 			IATATypeCode: m.IATATypeCode,
 			Name:         m.Name,
-		}
-
-		if err := s.store.LinerModel().Create(mModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1332,12 +1323,10 @@ func (s *server) handleLinersCreate() http.HandlerFunc {
 			return
 		}
 
-		lModel := &store.LinerModel{
+		if err := s.store.Liner().Create(&store.LinerModel{
 			IATACode:  l.IATACode,
 			ModelCode: l.ModelCode,
-		}
-
-		if err := s.store.Liner().Create(lModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1357,7 +1346,7 @@ func (s *server) handlePurchasesCreate() http.HandlerFunc {
 			return
 		}
 
-		pModel := &store.PurchaseModel{
+		if err := s.store.Purchase().Create(&store.PurchaseModel{
 			ID:              p.ID,
 			Date:            p.Date,
 			BookingOfficeID: p.BookingOfficeID,
@@ -1365,9 +1354,7 @@ func (s *server) handlePurchasesCreate() http.HandlerFunc {
 			ContactPhone:    p.ContactPhone,
 			ContactEmail:    p.ContactEmail,
 			CashierLogin:    p.CashierLogin,
-		}
-
-		if err := s.store.Purchase().Create(pModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1387,14 +1374,12 @@ func (s *server) handleSeatsCreate() http.HandlerFunc {
 			return
 		}
 
-		seatModel := &store.SeatModel{
+		if err := s.store.Seat().Create(&store.SeatModel{
 			ID:             seat.ID,
 			Number:         seat.Number,
 			Class:          seat.Class,
 			LinerModelCode: seat.LinerModelCode,
-		}
-
-		if err := s.store.Seat().Create(seatModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
@@ -1413,7 +1398,7 @@ func (s *server) handleTicketsCreate() http.HandlerFunc {
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
-		tModel := &store.TicketModel{
+		if err := s.store.Ticket().Create(&store.TicketModel{
 			Number:                  t.Number,
 			PassengerLastName:       t.PassengerLastName,
 			PassengerGivenName:      t.PassengerGivenName,
@@ -1421,8 +1406,7 @@ func (s *server) handleTicketsCreate() http.HandlerFunc {
 			PassengerPassportNumber: t.PassengerPassportNumber,
 			PassengerSex:            t.PassengerSex,
 			PurchaseID:              t.PurchaseID,
-		}
-		if err := s.store.Ticket().Create(tModel); err != nil {
+		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
