@@ -41,7 +41,7 @@ type CashierModel struct {
 }
 
 type FlightModel struct {
-	DepDate   time.Time `db:"dep_date"`
+	DepDate   *time.Time `db:"dep_date"`
 	LineCode  string    `db:"line_code"`
 	IsHot     bool      `db:"is_hot"`
 	LinerCode string    `db:"liner_code"`

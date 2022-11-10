@@ -24,7 +24,7 @@ type Cashier struct {
 }
 
 type Flight struct {
-	DepDate   time.Time `json:"dep_date"`
+	DepDate   *time.Time `json:"dep_date"`
 	LineCode  string    `json:"line_code"`
 	IsHot     bool      `json:"is_hot"`
 	LinerCode string    `json:"liner_code"`
