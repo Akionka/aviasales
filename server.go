@@ -22,6 +22,7 @@ var (
 	errIncorrectLoginOrPassword  = errors.New("incorrect login or password")
 	errRequestedItemDoesNotExist = errors.New("requested item does not exist")
 	errCantDeleteAdmin           = errors.New("you cannot delete admin cashier")
+	errCantUpdateAdminLogin      = errors.New("you cannot update admin cashier login")
 )
 
 const (
@@ -443,6 +444,10 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 			c := &Cashier{}
 			if err := json.NewDecoder(r.Body).Decode(c); err != nil {
 				s.error(w, r, http.StatusBadRequest, err)
+				return
+			}
+			if vars["login"] == "admin" && c.Login != "admin" {
+				s.error(w, r, http.StatusForbidden, errCantUpdateAdminLogin)
 				return
 			}
 			if err := c.Validate(); err != nil {
