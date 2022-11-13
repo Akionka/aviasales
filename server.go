@@ -21,6 +21,7 @@ var (
 	errBadAuthorizationToken     = errors.New("bad authorization token")
 	errIncorrectLoginOrPassword  = errors.New("incorrect login or password")
 	errRequestedItemDoesNotExist = errors.New("requested item does not exist")
+	errCantDeleteAdmin           = errors.New("you cannot delete admin cashier")
 )
 
 const (
@@ -425,6 +426,10 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodDelete {
+			if vars["login"] == "admin" {
+				s.error(w, r, http.StatusForbidden, errCantDeleteAdmin)
+				return
+			}
 			err := s.store.Cashier().Delete(vars["login"])
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
