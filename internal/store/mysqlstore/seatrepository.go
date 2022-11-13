@@ -38,12 +38,13 @@ func (r *SeatRepository) FindAll(row_count, offset int) (*[]store.SeatModel, err
 	return seats, nil
 }
 
-func (r *SeatRepository) Update(s *store.SeatModel) error {
+func (r *SeatRepository) Update(id int, s *store.SeatModel) error {
 	res, err := r.store.db.Exec("UPDATE seat SET id = ?, number = ?, class = ?, liner_model_class = ? WHERE id = ?",
 		s.ID,
 		s.Number,
 		s.Class,
 		s.LinerModelCode,
+		id,
 	)
 	if err != nil {
 		return err

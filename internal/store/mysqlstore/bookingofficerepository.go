@@ -1,13 +1,19 @@
 package mysqlstore
 
-import "github.com/akionka/aviasales/internal/store"
+import (
+	"github.com/akionka/aviasales/internal/store"
+)
 
 type BookingOfficeRepository struct {
 	store *Store
 }
 
 func (r *BookingOfficeRepository) Create(o *store.BookingOfficeModel) error {
-	_, err := r.store.db.Exec("INSERT INTO booking_office (id, address, phone_number) VALUES (?, ?, ?)", o.ID, o.Address, o.PhoneNumber)
+	_, err := r.store.db.Exec("INSERT INTO booking_office (id, address, phone_number) VALUES (?, ?, ?)",
+		o.ID,
+		o.Address,
+		o.PhoneNumber,
+	)
 	return err
 }
 
@@ -34,8 +40,13 @@ func (r *BookingOfficeRepository) FindAll(row_count, offset int) (*[]store.Booki
 	return offices, nil
 }
 
-func (r *BookingOfficeRepository) Update(o *store.BookingOfficeModel) error {
-	res, err := r.store.db.Exec("UPDATE booking_office SET id = ?, address = ?, phone_number = ? WHERE id = ?", o.ID, o.Address, o.PhoneNumber, o.ID)
+func (r *BookingOfficeRepository) Update(id int, o *store.BookingOfficeModel) error {
+	res, err := r.store.db.Exec("UPDATE booking_office SET id = ?, address = ?, phone_number = ? WHERE id = ?",
+		o.ID,
+		o.Address,
+		o.PhoneNumber,
+		id,
+	)
 	if err != nil {
 		return err
 	}

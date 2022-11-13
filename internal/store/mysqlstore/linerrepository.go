@@ -36,11 +36,11 @@ func (r *LinerRepository) FindAll(row_count, offset int) (*[]store.LinerModel, e
 	return liners, nil
 }
 
-func (r *LinerRepository) Update(l *store.LinerModel) error {
+func (r *LinerRepository) Update(code string, l *store.LinerModel) error {
 	res, err := r.store.db.Exec("UPDATE liner SET iata_code = ?, model_code = ? WHERE iata_code = ?",
 		l.IATACode,
 		l.ModelCode,
-		l.IATACode,
+		code,
 	)
 	if err != nil {
 		return err

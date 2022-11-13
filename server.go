@@ -285,7 +285,7 @@ func (s *server) handleAirportGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Airport().Update(&store.AirportModel{
+			if err := s.store.Airport().Update(vars["code"], &store.AirportModel{
 				IATACode: a.IATACode,
 				City:     a.City,
 				Timezone: a.Timezone,
@@ -368,7 +368,7 @@ func (s *server) handleBookingOfficeGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.BookingOffice().Update(&store.BookingOfficeModel{
+			if err := s.store.BookingOffice().Update(id, &store.BookingOfficeModel{
 				ID:          b.ID,
 				Address:     b.Address,
 				PhoneNumber: b.PhoneNumber,
@@ -455,7 +455,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Cashier().Update(&store.CashierModel{
+			if err := s.store.Cashier().Update(vars["login"], &store.CashierModel{
 				Login:      c.Login,
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
@@ -572,7 +572,7 @@ func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.FlightInTicket().Update(&store.FlightInTicketModel{
+			if err := s.store.FlightInTicket().Update(vars["dep_date"], vars["line_code"], id, ticketNo, &store.FlightInTicketModel{
 				DepDate:  f.DepDate,
 				LineCode: f.LineCode,
 				SeatID:   f.SeatID,
@@ -652,7 +652,7 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Flight().Update(&store.FlightModel{
+			if err := s.store.Flight().Update(vars["dep_date"], vars["line_code"], &store.FlightModel{
 				DepDate:   f.DepDate,
 				LineCode:  f.LineCode,
 				IsHot:     f.IsHot,
@@ -736,7 +736,7 @@ func (s *server) handleLineGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Line().Update(&store.LineModel{
+			if err := s.store.Line().Update(vars["code"], &store.LineModel{
 				LineCode:   l.LineCode,
 				DepTime:    l.DepTime,
 				ArrTime:    l.ArrTime,
@@ -814,7 +814,7 @@ func (s *server) handleLinerModelGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.LinerModel().Update(&store.LinerModelModel{
+			if err := s.store.LinerModel().Update(vars["code"], &store.LinerModelModel{
 				IATATypeCode: m.IATATypeCode,
 				Name:         m.Name,
 			}); err != nil {
@@ -886,7 +886,7 @@ func (s *server) handleLinerGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Liner().Update(&store.LinerModel{
+			if err := s.store.Liner().Update(vars["code"], &store.LinerModel{
 				IATACode:  l.IATACode,
 				ModelCode: l.ModelCode,
 			}); err != nil {
@@ -974,7 +974,7 @@ func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Purchase().Update(&store.PurchaseModel{
+			if err := s.store.Purchase().Update(id, &store.PurchaseModel{
 				ID:              p.ID,
 				Date:            p.Date,
 				BookingOfficeID: p.BookingOfficeID,
@@ -1063,7 +1063,7 @@ func (s *server) handleSeatGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Seat().Update(&store.SeatModel{
+			if err := s.store.Seat().Update(id, &store.SeatModel{
 				ID:             seat.ID,
 				Number:         seat.Number,
 				Class:          seat.Class,
@@ -1153,7 +1153,7 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Ticket().Update(&store.TicketModel{
+			if err := s.store.Ticket().Update(ticketNo, &store.TicketModel{
 				Number:                  t.Number,
 				PassengerLastName:       t.PassengerLastName,
 				PassengerGivenName:      t.PassengerGivenName,

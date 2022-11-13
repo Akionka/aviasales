@@ -41,14 +41,14 @@ func (r *FlightRepository) FindAll(row_count, offset int) (*[]store.FlightModel,
 	return flights, nil
 }
 
-func (r *FlightRepository) Update(f *store.FlightModel) error {
+func (r *FlightRepository) Update(depDate string, lineCode string, f *store.FlightModel) error {
 	res, err := r.store.db.Exec("UPDATE flight SET dep_date = ?, line_code = ?, is_hot = ?, liner_code = ? WHERE dep_date = ? AND line_code = ?",
 		f.DepDate,
 		f.LineCode,
 		f.IsHot,
 		f.LinerCode,
-		f.DepDate,
-		f.LineCode,
+		depDate,
+		lineCode,
 	)
 	if err != nil {
 		return err

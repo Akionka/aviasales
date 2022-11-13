@@ -41,7 +41,7 @@ func (r *LineRepository) FindAll(row_count, offset int) (*[]store.LineModel, err
 	return lines, nil
 }
 
-func (r *LineRepository) Update(l *store.LineModel) error {
+func (r *LineRepository) Update(code string, l *store.LineModel) error {
 	res, err := r.store.db.Exec("UPDATE line SET line_code = ?, dep_time = ?, arr_time = ?, base_price = ?, dep_airport = ?, arr_airport = ? WHERE line_code = ?",
 		l.LineCode,
 		l.DepTime,
@@ -49,7 +49,7 @@ func (r *LineRepository) Update(l *store.LineModel) error {
 		l.BasePrice,
 		l.DepAirport,
 		l.ArrAirport,
-		l.LineCode,
+		code,
 	)
 	if err != nil {
 		return err
