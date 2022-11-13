@@ -7,7 +7,7 @@ type CashierRepository struct {
 }
 
 func (r *CashierRepository) Create(c *store.CashierModel) error {
-	_, err := r.store.db.Exec("INSERT INTO сashier (login, last_name, first_name, middle_name, password) VALUES (?, ?, ?, ?, ?)",
+	_, err := r.store.db.Exec("INSERT INTO cashier (login, last_name, first_name, middle_name, password) VALUES (?, ?, ?, ?, ?)",
 		c.Login,
 		c.LastName,
 		c.FirstName,

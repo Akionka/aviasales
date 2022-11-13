@@ -229,16 +229,16 @@ func (s *server) handleAirportsGet() http.HandlerFunc {
 			return
 		}
 
-		airPortResponse := make([]Airport, len(*airports))
+		airportResponse := make([]Airport, len(*airports))
 		for i, v := range *airports {
-			airPortResponse[i] = Airport{
+			airportResponse[i] = Airport{
 				IATACode: v.IATACode,
 				City:     v.City,
 				Timezone: v.Timezone,
 			}
 		}
 
-		s.respond(w, r, 200, airPortResponse)
+		s.respond(w, r, 200, airportResponse)
 	}
 }
 
