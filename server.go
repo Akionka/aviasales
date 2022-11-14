@@ -60,7 +60,7 @@ func (s *server) configureRouter() {
 	s.router.Use(handlers.CORS(
 		handlers.AllowedHeaders([]string{"Authorization", "Content-Type"}),
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodPost, http.MethodOptions}),
-		handlers.AllowedOrigins([]string{"http://127.0.0.1:5500"})))
+		handlers.AllowedOrigins([]string{"http://127.0.0.1:5500", "http://localhost:3000"})))
 
 	s.router.HandleFunc("/session", s.handleSessionsCreate()).Methods("POST", "OPTIONS")
 
@@ -190,6 +190,10 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}
+	type response struct {
+		Token string   `json:"token"`
+		User  *Cashier `json:"user"`
+	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			return
@@ -214,8 +218,14 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		s.respond(w, r, 200, map[string]string{
-			"token": tokenString,
+		s.respond(w, r, 200, response{
+			Token: tokenString,
+			User: &Cashier{
+				Login:      c.Login,
+				LastName:   c.LastName,
+				FirstName:  c.FirstName,
+				MiddleName: c.MiddleName,
+			},
 		})
 	}
 }
@@ -229,16 +239,26 @@ func (s *server) handleAirportsGet() http.HandlerFunc {
 			return
 		}
 
-		airportResponse := make([]Airport, len(*airports))
+		totalCount, err := s.store.Airport().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := AirportList{
+			Items:      make([]Airport, len(*airports)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *airports {
-			airportResponse[i] = Airport{
+			response.Items[i] = Airport{
 				IATACode: v.IATACode,
 				City:     v.City,
 				Timezone: v.Timezone,
 			}
 		}
 
-		s.respond(w, r, 200, airportResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -307,16 +327,26 @@ func (s *server) handleBookingOfficesGet() http.HandlerFunc {
 			return
 		}
 
-		officeResponse := make([]BookingOffice, len(*offices))
+		totalCount, err := s.store.BookingOffice().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := BookingOfficeList{
+			Items:      make([]BookingOffice, len(*offices)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *offices {
-			officeResponse[i] = BookingOffice{
+			response.Items[i] = BookingOffice{
 				ID:          v.ID,
 				Address:     v.Address,
 				PhoneNumber: v.PhoneNumber,
 			}
 		}
 
-		s.respond(w, r, 200, officeResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -390,16 +420,27 @@ func (s *server) handleCashiersGet() http.HandlerFunc {
 			return
 		}
 
-		cashierResponse := make([]Cashier, len(*cashiers))
+		totalCount, err := s.store.Cashier().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := CashierList{
+			Items:      make([]Cashier, len(*cashiers)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *cashiers {
-			cashierResponse[i] = Cashier{
+			response.Items[i] = Cashier{
 				Login:      v.Login,
 				LastName:   v.LastName,
 				FirstName:  v.FirstName,
 				MiddleName: v.MiddleName,
 			}
 		}
-		s.respond(w, r, 200, cashierResponse)
+
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -505,16 +546,26 @@ func (s *server) handleFlightInTicketsGet() http.HandlerFunc {
 			return
 		}
 
-		flightInTicketsResponse := make([]FlightInTicket, len(*flightInTickets))
+		totalCount, err := s.store.FlightInTicket().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := FlightInTicketList{
+			Items:      make([]FlightInTicket, len(*flightInTickets)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *flightInTickets {
-			flightInTicketsResponse[i] = FlightInTicket{
+			response.Items[i] = FlightInTicket{
 				DepDate:  v.DepDate,
 				LineCode: v.LineCode,
 				SeatID:   v.SeatID,
 				TicketNo: v.TicketNo,
 			}
 		}
-		s.respond(w, r, 200, flightInTicketsResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -595,16 +646,26 @@ func (s *server) handleFlightsGet() http.HandlerFunc {
 			return
 		}
 
-		flightsResponse := make([]Flight, len(*flights))
+		totalCount, err := s.store.Flight().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := FlightList{
+			Items:      make([]Flight, len(*flights)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *flights {
-			flightsResponse[i] = Flight{
+			response.Items[i] = Flight{
 				DepDate:   v.DepDate,
 				LineCode:  v.LineCode,
 				LinerCode: v.LinerCode,
 				IsHot:     v.IsHot,
 			}
 		}
-		s.respond(w, r, 200, flightsResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -675,9 +736,19 @@ func (s *server) handleLinesGet() http.HandlerFunc {
 			return
 		}
 
-		linesResponse := make([]Line, len(*lines))
+		totalCount, err := s.store.Line().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := LineList{
+			Items:      make([]Line, len(*lines)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *lines {
-			linesResponse[i] = Line{
+			response.Items[i] = Line{
 				LineCode:   v.LineCode,
 				DepTime:    v.DepTime,
 				ArrTime:    v.ArrTime,
@@ -686,7 +757,7 @@ func (s *server) handleLinesGet() http.HandlerFunc {
 				ArrAirport: v.ArrAirport,
 			}
 		}
-		s.respond(w, r, 200, linesResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -761,14 +832,24 @@ func (s *server) handleLinerModelsGet() http.HandlerFunc {
 			return
 		}
 
-		modelsResponse := make([]LinerModel, len(*models))
+		totalCount, err := s.store.LinerModel().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := LinerModelList{
+			Items:      make([]LinerModel, len(*models)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *models {
-			modelsResponse[i] = LinerModel{
+			response.Items[i] = LinerModel{
 				IATATypeCode: v.IATATypeCode,
 				Name:         v.Name,
 			}
 		}
-		s.respond(w, r, 200, modelsResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -835,14 +916,24 @@ func (s *server) handleLinersGet() http.HandlerFunc {
 			return
 		}
 
-		linersResponse := make([]Liner, len(*liners))
+		totalCount, err := s.store.Liner().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := LinerList{
+			Items:      make([]Liner, len(*liners)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *liners {
-			linersResponse[i] = Liner{
+			response.Items[i] = Liner{
 				IATACode:  v.IATACode,
 				ModelCode: v.ModelCode,
 			}
 		}
-		s.respond(w, r, 200, linersResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 
@@ -907,9 +998,19 @@ func (s *server) handlePurchasesGet() http.HandlerFunc {
 			return
 		}
 
-		purchasesResponse := make([]Purchase, len(*purchases))
+		totalCount, err := s.store.Purchase().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := PurchaseList{
+			Items:      make([]Purchase, len(*purchases)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *purchases {
-			purchasesResponse[i] = Purchase{
+			response.Items[i] = Purchase{
 				ID:              v.ID,
 				Date:            v.Date,
 				BookingOfficeID: v.BookingOfficeID,
@@ -919,7 +1020,7 @@ func (s *server) handlePurchasesGet() http.HandlerFunc {
 				CashierLogin:    v.CashierLogin,
 			}
 		}
-		s.respond(w, r, 200, purchasesResponse)
+		s.respond(w, r, 200, response)
 	}
 
 }
@@ -1000,16 +1101,26 @@ func (s *server) handleSeatsGet() http.HandlerFunc {
 			return
 		}
 
-		seatsResponse := make([]Seat, len(*seats))
+		totalCount, err := s.store.Seat().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := SeatList{
+			Items:      make([]Seat, len(*seats)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *seats {
-			seatsResponse[i] = Seat{
+			response.Items[i] = Seat{
 				ID:             v.ID,
 				Number:         v.Number,
 				LinerModelCode: v.LinerModelCode,
 				Class:          v.Class,
 			}
 		}
-		s.respond(w, r, 200, seatsResponse)
+		s.respond(w, r, 200, response)
 
 	}
 
@@ -1086,9 +1197,19 @@ func (s *server) handleTicketsGet() http.HandlerFunc {
 			return
 		}
 
-		ticketsResponse := make([]Ticket, len(*ticket))
+		totalCount, err := s.store.Ticket().TotalCount()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		response := TicketList{
+			Items:      make([]Ticket, len(*ticket)),
+			TotalCount: totalCount,
+		}
+
 		for i, v := range *ticket {
-			ticketsResponse[i] = Ticket{
+			response.Items[i] = Ticket{
 				Number:                  v.Number,
 				PassengerLastName:       v.PassengerLastName,
 				PassengerGivenName:      v.PassengerGivenName,
@@ -1098,7 +1219,7 @@ func (s *server) handleTicketsGet() http.HandlerFunc {
 				PurchaseID:              v.PurchaseID,
 			}
 		}
-		s.respond(w, r, 200, ticketsResponse)
+		s.respond(w, r, 200, response)
 	}
 }
 

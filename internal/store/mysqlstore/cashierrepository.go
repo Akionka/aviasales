@@ -80,3 +80,12 @@ func (r *CashierRepository) Delete(login string) error {
 	}
 	return nil
 }
+
+func (r *CashierRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from cashier")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}

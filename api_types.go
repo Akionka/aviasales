@@ -212,3 +212,59 @@ func (t *Ticket) Validate() error {
 		validation.Field(&t.PurchaseID, validation.Required, validation.Min(0)),
 	)
 }
+
+
+type AirportList struct {
+	Items []Airport `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type BookingOfficeList struct {
+	Items []BookingOffice `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type CashierList struct {
+	Items []Cashier `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type FlightList struct {
+	Items []Flight `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type FlightInTicketList struct {
+	Items []FlightInTicket `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type LineList struct {
+	Items []Line `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type LinerList struct {
+	Items []Liner `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type LinerModelList struct {
+	Items []LinerModel `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type PurchaseList struct {
+	Items []Purchase `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type SeatList struct {
+	Items []Seat `json:"items"`
+	TotalCount int `json:"total_count"`
+}
+
+type TicketList struct {
+	Items []Ticket `json:"items"`
+	TotalCount int `json:"total_count"`
+}

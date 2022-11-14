@@ -6,6 +6,7 @@ type AirportRepository interface {
 	FindAll(row_count, offset int) (*[]AirportModel, error)
 	Update(code string, a *AirportModel) error
 	Delete(code string) error
+	TotalCount() (int, error)
 }
 
 type BookingOfficeRepository interface {
@@ -14,6 +15,7 @@ type BookingOfficeRepository interface {
 	FindAll(row_count, offset int) (*[]BookingOfficeModel, error)
 	Update(id int, o *BookingOfficeModel) error
 	Delete(id int) error
+	TotalCount() (int, error)
 }
 
 type CashierRepository interface {
@@ -23,6 +25,7 @@ type CashierRepository interface {
 	Update(login string, c *CashierModel) error
 	UpdatePassword(*CashierModel) error
 	Delete(login string) error
+	TotalCount() (int, error)
 }
 
 type FlightInTicketRepository interface {
@@ -31,6 +34,7 @@ type FlightInTicketRepository interface {
 	FindAll(row_count, offset int) (*[]FlightInTicketModel, error)
 	Update(depDate string, lineCode string, seatID int, ticketNo int64, f *FlightInTicketModel) error
 	Delete(depDate string, lineCode string, seatID int, ticketNo int64) error
+	TotalCount() (int, error)
 }
 
 type FlightRepository interface {
@@ -39,6 +43,7 @@ type FlightRepository interface {
 	FindAll(row_count, offset int) (*[]FlightModel, error)
 	Update(depDate string, lineCode string, f *FlightModel) error
 	Delete(depDate string, lineCode string) error
+	TotalCount() (int, error)
 }
 
 type LineRepository interface {
@@ -47,6 +52,7 @@ type LineRepository interface {
 	FindAll(row_count, offset int) (*[]LineModel, error)
 	Update(code string, l *LineModel) error
 	Delete(code string) error
+	TotalCount() (int, error)
 }
 
 type LinerModelRepository interface {
@@ -55,6 +61,7 @@ type LinerModelRepository interface {
 	FindAll(row_count, offset int) (*[]LinerModelModel, error)
 	Update(code string, m *LinerModelModel) error
 	Delete(code string) error
+	TotalCount() (int, error)
 }
 
 type LinerRepository interface {
@@ -63,6 +70,7 @@ type LinerRepository interface {
 	FindAll(row_count, offset int) (*[]LinerModel, error)
 	Update(code string, l *LinerModel) error
 	Delete(code string) error
+	TotalCount() (int, error)
 }
 
 type PurchaseRepository interface {
@@ -71,6 +79,7 @@ type PurchaseRepository interface {
 	FindAll(row_count, offset int) (*[]PurchaseModel, error)
 	Update(id int, p *PurchaseModel) error
 	Delete(id int) error
+	TotalCount() (int, error)
 }
 
 type SeatRepository interface {
@@ -79,6 +88,7 @@ type SeatRepository interface {
 	FindAll(row_count, offset int) (*[]SeatModel, error)
 	Update(id int, s *SeatModel) error
 	Delete(id int) error
+	TotalCount() (int, error)
 }
 
 type TicketRepository interface {
@@ -87,4 +97,5 @@ type TicketRepository interface {
 	FindAll(row_count, offset int) (*[]TicketModel, error)
 	Update(number int64, t *TicketModel) error
 	Delete(number int64) error
+	TotalCount() (int, error)
 }

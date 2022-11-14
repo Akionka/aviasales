@@ -89,3 +89,12 @@ func (r *FlightInTicketRepository) Delete(depDate string, lineCode string, seatI
 	}
 	return nil
 }
+
+func (r *FlightInTicketRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from flight_in_ticket")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}

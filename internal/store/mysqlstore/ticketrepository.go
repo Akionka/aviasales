@@ -79,3 +79,12 @@ func (r *TicketRepository) Delete(number int64) error {
 	}
 	return nil
 }
+
+func (r *TicketRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from ticket")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}

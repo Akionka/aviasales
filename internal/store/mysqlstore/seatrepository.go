@@ -73,3 +73,12 @@ func (r *SeatRepository) Delete(id int) error {
 	}
 	return nil
 }
+
+func (r *SeatRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from seat")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}

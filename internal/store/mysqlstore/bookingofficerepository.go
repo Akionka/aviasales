@@ -74,3 +74,12 @@ func (r *BookingOfficeRepository) Delete(id int) error {
 	}
 	return nil
 }
+
+func (r *BookingOfficeRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from booking_office")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}

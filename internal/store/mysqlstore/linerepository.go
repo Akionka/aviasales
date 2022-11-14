@@ -78,3 +78,12 @@ func (r *LineRepository) Delete(code string) error {
 	}
 	return nil
 }
+
+func (r *LineRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from line")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}

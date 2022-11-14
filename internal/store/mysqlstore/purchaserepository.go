@@ -79,3 +79,12 @@ func (r *PurchaseRepository) Delete(id int) error {
 	}
 	return nil
 }
+
+func (r *PurchaseRepository) TotalCount() (int, error) {
+	var count int
+	row := r.store.db.QueryRow("SELECT COUNT(*) from purchase")
+	if err := row.Scan(&count); err != nil {
+		return -1, err
+	}
+	return count, nil
+}
