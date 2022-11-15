@@ -18,9 +18,9 @@ func (r *FlightRepository) Create(f *store.FlightModel) error {
 	return err
 }
 
-func (r *FlightRepository) Find(depDate string, lineCode string) (*store.FlightModel, error) {
+func (r *FlightRepository) Find(id int) (*store.FlightModel, error) {
 	flight := &store.FlightModel{}
-	if err := r.store.db.Get(flight, "SELECT * FROM flight WHERE dep_date = ? AND line_code = ?", depDate, lineCode); err != nil {
+	if err := r.store.db.Get(flight, "SELECT * FROM flight WHERE id = ?", id); err != nil {
 		return nil, err
 	}
 	return flight, nil
@@ -41,14 +41,13 @@ func (r *FlightRepository) FindAll(row_count, offset int) (*[]store.FlightModel,
 	return flights, nil
 }
 
-func (r *FlightRepository) Update(depDate string, lineCode string, f *store.FlightModel) error {
-	res, err := r.store.db.Exec("UPDATE flight SET dep_date = ?, line_code = ?, is_hot = ?, liner_code = ? WHERE dep_date = ? AND line_code = ?",
+func (r *FlightRepository) Update(id int, f *store.FlightModel) error {
+	res, err := r.store.db.Exec("UPDATE flight SET dep_date = ?, line_code = ?, is_hot = ?, liner_code = ? WHERE id = ?",
 		f.DepDate,
 		f.LineCode,
 		f.IsHot,
 		f.LinerCode,
-		depDate,
-		lineCode,
+		id,
 	)
 	if err != nil {
 		return err
@@ -63,8 +62,8 @@ func (r *FlightRepository) Update(depDate string, lineCode string, f *store.Flig
 	return err
 }
 
-func (r *FlightRepository) Delete(depDate string, lineCode string) error {
-	res, err := r.store.db.Exec("DELETE FROM flight WHERE dep_date = ? AND line_code = ?", depDate, lineCode)
+func (r *FlightRepository) Delete(id int) error {
+	res, err := r.store.db.Exec("DELETE FROM flight WHERE id = ?", id)
 	if err != nil {
 		return err
 	}

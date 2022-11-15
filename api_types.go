@@ -60,6 +60,7 @@ func (o *BookingOffice) Validate() error {
 }
 
 type Cashier struct {
+	ID         int    `json:"id"`
 	Login      string `json:"login"`
 	LastName   string `json:"last_name"`
 	FirstName  string `json:"first_name"`
@@ -69,6 +70,7 @@ type Cashier struct {
 
 func (c *Cashier) Validate() error {
 	return validation.ValidateStruct(c,
+		validation.Field(&c.ID, validation.Required),
 		validation.Field(&c.Login, validation.Required, validation.Length(3, 32), is.Alphanumeric),
 		validation.Field(&c.FirstName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.LastName, validation.Required, validation.Length(3, 64)),
@@ -78,6 +80,7 @@ func (c *Cashier) Validate() error {
 }
 
 type Flight struct {
+	ID        int        `json:"id"`
 	DepDate   *time.Time `json:"dep_date"`
 	LineCode  string     `json:"line_code"`
 	IsHot     bool       `json:"is_hot"`
@@ -86,6 +89,7 @@ type Flight struct {
 
 func (f *Flight) Validate() error {
 	return validation.ValidateStruct(f,
+		validation.Field(&f.ID, validation.Required),
 		validation.Field(&f.DepDate, validation.Required),
 		validation.Field(&f.LineCode, validation.Required, validation.Length(3, 6), validation.Match(regexp.MustCompile("^[A-Z]{2}[0-9]{1,4}$"))),
 		validation.Field(&f.IsHot),
@@ -94,18 +98,18 @@ func (f *Flight) Validate() error {
 }
 
 type FlightInTicket struct {
-	DepDate  *time.Time `json:"dep_date"`
-	LineCode string     `json:"line_code"`
-	SeatID   int        `json:"seat_id"`
-	TicketNo int64      `json:"ticket_no"`
+	ID       int `json:"id"`
+	FlightID int `json:"flight_id"`
+	SeatID   int `json:"seat_id"`
+	TicketID int `json:"ticket_id"`
 }
 
 func (f *FlightInTicket) Validate() error {
 	return validation.ValidateStruct(f,
-		validation.Field(&f.DepDate, validation.Required),
-		validation.Field(&f.LineCode, validation.Required, validation.Required, validation.Length(3, 6), validation.Match(regexp.MustCompile("^[A-Z]{2}[0-9]{1,4}$"))),
+		validation.Field(&f.ID, validation.Required),
+		validation.Field(&f.FlightID, validation.Required),
 		validation.Field(&f.SeatID, validation.Required),
-		validation.Field(&f.TicketNo, validation.Required),
+		validation.Field(&f.TicketID, validation.Required),
 	)
 }
 
@@ -136,7 +140,7 @@ type Liner struct {
 
 func (l *Liner) Validate() error {
 	return validation.ValidateStruct(l,
-		validation.Field(&l.IATACode, validation.Required, validation.Length(4, 4), is.Alphanumeric),
+		validation.Field(&l.IATACode, validation.Required, validation.Length(7, 7), is.Alphanumeric),
 		validation.Field(&l.ModelCode, validation.Required, validation.Length(4, 4), is.Alphanumeric),
 	)
 }
@@ -160,18 +164,18 @@ type Purchase struct {
 	TotalPrice      float64    `json:"total_price"`
 	ContactPhone    string     `json:"contact_phone"`
 	ContactEmail    string     `json:"contact_email"`
-	CashierLogin    string     `json:"cashier_login"`
+	CashierID       string     `json:"cashier_id"`
 }
 
 func (p *Purchase) Validate() error {
 	return validation.ValidateStruct(p,
-		validation.Field(&p.ID, validation.Required, validation.Min(0)),
+		validation.Field(&p.ID, validation.Required),
 		validation.Field(&p.Date, validation.Required),
 		validation.Field(&p.BookingOfficeID, validation.Required),
 		validation.Field(&p.TotalPrice, validation.Required, validation.Min(0)),
 		validation.Field(&p.ContactPhone, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{11-15}$"))),
 		validation.Field(&p.ContactEmail, validation.Required, is.Email),
-		validation.Field(&p.CashierLogin, validation.Required, validation.Length(3, 32), is.Alphanumeric),
+		validation.Field(&p.CashierID, validation.Required),
 	)
 }
 
@@ -179,12 +183,12 @@ type Seat struct {
 	ID             int    `json:"id"`
 	Number         string `json:"number"`
 	Class          string `json:"class"`
-	LinerModelCode string `json:"liner_model_code"`
+	LinerModelCode string `json:"model_code"`
 }
 
 func (s *Seat) Validate() error {
 	return validation.ValidateStruct(s,
-		validation.Field(&s.ID, validation.Required, validation.Min(0)),
+		validation.Field(&s.ID, validation.Required),
 		validation.Field(&s.Number, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{1,2}[A-Z]{1}$"))),
 		validation.Field(&s.Class, validation.Required, validation.In("J", "W", "Y")),
 		validation.Field(&s.LinerModelCode, validation.Required, validation.Required, validation.Length(4, 4), is.Alphanumeric),
@@ -192,7 +196,7 @@ func (s *Seat) Validate() error {
 }
 
 type Ticket struct {
-	Number                  int64      `json:"number"`
+	ID                      int        `json:"id"`
 	PassengerLastName       string     `json:"passenger_last_name"`
 	PassengerGivenName      string     `json:"passenger_given_name"`
 	PassengerBirthDate      *time.Time `json:"passenger_birth_date"`
@@ -203,68 +207,67 @@ type Ticket struct {
 
 func (t *Ticket) Validate() error {
 	return validation.ValidateStruct(t,
-		validation.Field(&t.Number, validation.Required),
+		validation.Field(&t.ID, validation.Required),
 		validation.Field(&t.PassengerLastName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&t.PassengerGivenName, validation.Required, validation.Length(3, 128)),
 		validation.Field(&t.PassengerBirthDate, validation.Required, validation.By(checkAgeOver18)),
 		validation.Field(&t.PassengerPassportNumber, validation.Required, validation.Length(10, 10), is.Digit),
 		validation.Field(&t.PassengerSex, validation.Required, validation.In(1, 2)),
-		validation.Field(&t.PurchaseID, validation.Required, validation.Min(0)),
+		validation.Field(&t.PurchaseID, validation.Required),
 	)
 }
 
-
 type AirportList struct {
-	Items []Airport `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Airport `json:"items"`
+	TotalCount int       `json:"total_count"`
 }
 
 type BookingOfficeList struct {
-	Items []BookingOffice `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []BookingOffice `json:"items"`
+	TotalCount int             `json:"total_count"`
 }
 
 type CashierList struct {
-	Items []Cashier `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Cashier `json:"items"`
+	TotalCount int       `json:"total_count"`
 }
 
 type FlightList struct {
-	Items []Flight `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Flight `json:"items"`
+	TotalCount int      `json:"total_count"`
 }
 
 type FlightInTicketList struct {
-	Items []FlightInTicket `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []FlightInTicket `json:"items"`
+	TotalCount int              `json:"total_count"`
 }
 
 type LineList struct {
-	Items []Line `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Line `json:"items"`
+	TotalCount int    `json:"total_count"`
 }
 
 type LinerList struct {
-	Items []Liner `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Liner `json:"items"`
+	TotalCount int     `json:"total_count"`
 }
 
 type LinerModelList struct {
-	Items []LinerModel `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []LinerModel `json:"items"`
+	TotalCount int          `json:"total_count"`
 }
 
 type PurchaseList struct {
-	Items []Purchase `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Purchase `json:"items"`
+	TotalCount int        `json:"total_count"`
 }
 
 type SeatList struct {
-	Items []Seat `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Seat `json:"items"`
+	TotalCount int    `json:"total_count"`
 }
 
 type TicketList struct {
-	Items []Ticket `json:"items"`
-	TotalCount int `json:"total_count"`
+	Items      []Ticket `json:"items"`
+	TotalCount int      `json:"total_count"`
 }

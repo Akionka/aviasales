@@ -17,7 +17,15 @@ func (r *CashierRepository) Create(c *store.CashierModel) error {
 	return err
 }
 
-func (r *CashierRepository) Find(login string) (*store.CashierModel, error) {
+func (r *CashierRepository) Find(id int) (*store.CashierModel, error) {
+	cashier := &store.CashierModel{}
+	if err := r.store.db.Get(cashier, "SELECT * FROM cashier WHERE id = ?", id); err != nil {
+		return nil, err
+	}
+	return cashier, nil
+}
+
+func (r *CashierRepository) FindByLogin(login string) (*store.CashierModel, error) {
 	cashier := &store.CashierModel{}
 	if err := r.store.db.Get(cashier, "SELECT * FROM cashier WHERE login = ?", login); err != nil {
 		return nil, err
@@ -34,19 +42,19 @@ func (r *CashierRepository) FindAll(row_count, offset int) (*[]store.CashierMode
 	}
 
 	cashiers := &[]store.CashierModel{}
-	if err := r.store.db.Select(cashiers, "SELECT * FROM cashier ORDER BY login LIMIT ?, ?", offset, row_count); err != nil {
+	if err := r.store.db.Select(cashiers, "SELECT * FROM cashier ORDER BY id LIMIT ?, ?", offset, row_count); err != nil {
 		return nil, err
 	}
 	return cashiers, nil
 }
 
-func (r *CashierRepository) Update(login string, c *store.CashierModel) error {
-	res, err := r.store.db.Exec("UPDATE cashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE login = ?",
+func (r *CashierRepository) Update(id int, c *store.CashierModel) error {
+	res, err := r.store.db.Exec("UPDATE cashier SET login = ?, last_name = ?, first_name = ?, middle_name = ? WHERE id = ?",
 		c.Login,
 		c.LastName,
 		c.FirstName,
 		c.MiddleName,
-		login,
+		id,
 	)
 	if err != nil {
 		return err
@@ -62,12 +70,12 @@ func (r *CashierRepository) Update(login string, c *store.CashierModel) error {
 }
 
 func (r *CashierRepository) UpdatePassword(c *store.CashierModel) error {
-	_, err := r.store.db.Exec("UPDATE cashier SET password = ? WHERE login = ?", c.Password, c.Login)
+	_, err := r.store.db.Exec("UPDATE cashier SET password = ? WHERE id = ?", c.Password, c.ID)
 	return err
 }
 
-func (r *CashierRepository) Delete(login string) error {
-	res, err := r.store.db.Exec("DELETE FROM cashier WHERE login = ?", login)
+func (r *CashierRepository) Delete(id int) error {
+	res, err := r.store.db.Exec("DELETE FROM cashier WHERE id = ?", id)
 	if err != nil {
 		return err
 	}

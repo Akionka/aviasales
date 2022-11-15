@@ -7,8 +7,7 @@ type TicketRepository struct {
 }
 
 func (r *TicketRepository) Create(t *store.TicketModel) error {
-	_, err := r.store.db.Exec("INSERT INTO ticket (number, pass_last_name, pass_given_name, pass_birth_date, pass_passport_number, pass_sex, purchase_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		t.Number,
+	_, err := r.store.db.Exec("INSERT INTO ticket (pass_last_name, pass_given_name, pass_birth_date, pass_passport_number, pass_sex, purchase_id) VALUES (?, ?, ?, ?, ?, ?)",
 		t.PassengerLastName,
 		t.PassengerGivenName,
 		t.PassengerBirthDate,
@@ -19,9 +18,9 @@ func (r *TicketRepository) Create(t *store.TicketModel) error {
 	return err
 }
 
-func (r *TicketRepository) Find(number int64) (*store.TicketModel, error) {
+func (r *TicketRepository) Find(id int) (*store.TicketModel, error) {
 	ticket := &store.TicketModel{}
-	if err := r.store.db.Get(ticket, "SELECT * FROM ticket WHERE number = ?", number); err != nil {
+	if err := r.store.db.Get(ticket, "SELECT * FROM ticket WHERE id = ?", id); err != nil {
 		return nil, err
 	}
 	return ticket, nil
@@ -35,22 +34,21 @@ func (r *TicketRepository) FindAll(row_count, offset int) (*[]store.TicketModel,
 		offset = 0
 	}
 	tickets := &[]store.TicketModel{}
-	if err := r.store.db.Select(tickets, "SELECT * FROM ticket ORDER BY number LIMIT ?, ?", offset, row_count); err != nil {
+	if err := r.store.db.Select(tickets, "SELECT * FROM ticket ORDER BY id LIMIT ?, ?", offset, row_count); err != nil {
 		return nil, err
 	}
 	return tickets, nil
 }
 
-func (r *TicketRepository) Update(number int64, t *store.TicketModel) error {
-	res, err := r.store.db.Exec("UPDATE ticket SET number = ?, pass_last_name = ?, pass_given_name = ?, pass_birth_date = ?, pass_passport_number = ?, pass_sex = ?, purchase_id = ? WHERE number = ?",
-		t.Number,
+func (r *TicketRepository) Update(id int, t *store.TicketModel) error {
+	res, err := r.store.db.Exec("UPDATE ticket SET pass_last_name = ?, pass_given_name = ?, pass_birth_date = ?, pass_passport_number = ?, pass_sex = ?, purchase_id = ? WHERE id = ?",
 		t.PassengerLastName,
 		t.PassengerGivenName,
 		t.PassengerBirthDate,
 		t.PassengerPassportNumber,
 		t.PassengerSex,
 		t.PurchaseID,
-		number,
+		id,
 	)
 	if err != nil {
 		return err
@@ -65,8 +63,8 @@ func (r *TicketRepository) Update(number int64, t *store.TicketModel) error {
 	return err
 }
 
-func (r *TicketRepository) Delete(number int64) error {
-	res, err := r.store.db.Exec("DELETE FROM ticket WHERE number = ?", number)
+func (r *TicketRepository) Delete(id int) error {
+	res, err := r.store.db.Exec("DELETE FROM id WHERE number = ?", id)
 	if err != nil {
 		return err
 	}

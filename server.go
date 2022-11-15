@@ -111,10 +111,10 @@ func (s *server) configureRouter() {
 
 	secured.HandleFunc("/airports/{code}", s.handleAirportGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficeGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	secured.HandleFunc("/cashiers/{login}", s.handleCashierGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	secured.HandleFunc("/cashiers/{login}/password", s.handleCashierPasswordUpdate()).Methods(http.MethodPut, http.MethodOptions)
-	secured.HandleFunc("/flight_in_tickets/{dep_date}/{line_code}/{seat_id:[0-9]+}/{ticket_no:[0-9]+}", s.handleFlightInTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	secured.HandleFunc("/flights/{dep_date}/{line_code}", s.handleFlightGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/cashiers/{id:[0-9]+}", s.handleCashierGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/cashiers/{id:[0-9]+}/password", s.handleCashierPasswordUpdate()).Methods(http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/flight_in_tickets/{id:[0-9]+}", s.handleFlightInTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	secured.HandleFunc("/flights/{id:[0-9]+}", s.handleFlightGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/lines/{code}", s.handleLineGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/liner_models/{code}", s.handleLinerModelGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	secured.HandleFunc("/liners/{code}", s.handleLinerGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
@@ -153,12 +153,12 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 			return
 		}
 
-		cashierLogin, ok := claims["login"].(string)
+		cashierID, ok := claims["login"].(string)
 		if !ok {
 			s.error(w, r, http.StatusUnauthorized, errBadAuthorizationToken)
 			return
 		}
-		cashier, err := s.store.Cashier().Find(cashierLogin)
+		cashier, err := s.store.Cashier().FindByLogin(cashierID)
 		if err != nil {
 			s.error(w, r, http.StatusUnauthorized, errBadAuthorizationToken)
 			return
@@ -204,7 +204,7 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 			return
 		}
 
-		c, err := s.store.Cashier().Find(req.Login)
+		c, err := s.store.Cashier().FindByLogin(req.Login)
 		if err != nil || !c.ComparePassword(req.Password) {
 			s.error(w, r, http.StatusUnauthorized, errIncorrectLoginOrPassword)
 			return
@@ -447,9 +447,14 @@ func (s *server) handleCashiersGet() http.HandlerFunc {
 func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
 
 		if r.Method == http.MethodGet {
-			c, err := s.store.Cashier().Find(vars["login"])
+			c, err := s.store.Cashier().Find(id)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
@@ -472,7 +477,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				s.error(w, r, http.StatusForbidden, errCantDeleteAdmin)
 				return
 			}
-			err := s.store.Cashier().Delete(vars["login"])
+			err := s.store.Cashier().Delete(id)
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
@@ -496,7 +501,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Cashier().Update(vars["login"], &store.CashierModel{
+			if err := s.store.Cashier().Update(id, &store.CashierModel{
 				Login:      c.Login,
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
@@ -514,6 +519,12 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 func (s *server) handleCashierPasswordUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
 		c := &store.CashierModel{}
 		if err := json.NewDecoder(r.Body).Decode(c); err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
@@ -526,7 +537,7 @@ func (s *server) handleCashierPasswordUpdate() http.HandlerFunc {
 		}
 
 		cModel := store.CashierModel{
-			Login: vars["login"],
+			ID: id,
 		}
 
 		cModel.SetPassword(c.Password)
@@ -559,10 +570,10 @@ func (s *server) handleFlightInTicketsGet() http.HandlerFunc {
 
 		for i, v := range *flightInTickets {
 			response.Items[i] = FlightInTicket{
-				DepDate:  v.DepDate,
-				LineCode: v.LineCode,
+				ID:       v.ID,
+				FlightID: v.FlightID,
 				SeatID:   v.SeatID,
-				TicketNo: v.TicketNo,
+				TicketID: v.TicketID,
 			}
 		}
 		s.respond(w, r, 200, response)
@@ -572,19 +583,14 @@ func (s *server) handleFlightInTicketsGet() http.HandlerFunc {
 func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		id, err := strconv.Atoi(vars["seat_id"])
-		if err != nil {
-			s.error(w, r, http.StatusBadRequest, err)
-			return
-		}
-		ticketNo, err := strconv.ParseInt(vars["ticket_no"], 10, 64)
+		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
 
 		if r.Method == http.MethodGet {
-			f, err := s.store.FlightInTicket().Find(vars["dep_date"], vars["line_code"], id, ticketNo)
+			f, err := s.store.FlightInTicket().Find(id)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
@@ -594,16 +600,16 @@ func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 			s.respond(w, r, http.StatusOK, &FlightInTicket{
-				DepDate:  f.DepDate,
-				LineCode: f.LineCode,
+				ID:       id,
+				FlightID: f.FlightID,
 				SeatID:   f.SeatID,
-				TicketNo: f.TicketNo,
+				TicketID: f.SeatID,
 			})
 			return
 		}
 
 		if r.Method == http.MethodDelete {
-			err = s.store.FlightInTicket().Delete(vars["dep_date"], vars["line_code"], id, ticketNo)
+			err = s.store.FlightInTicket().Delete(id)
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
@@ -623,11 +629,10 @@ func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.FlightInTicket().Update(vars["dep_date"], vars["line_code"], id, ticketNo, &store.FlightInTicketModel{
-				DepDate:  f.DepDate,
-				LineCode: f.LineCode,
+			if err := s.store.FlightInTicket().Update(id, &store.FlightInTicketModel{
+				FlightID: f.FlightID,
 				SeatID:   f.SeatID,
-				TicketNo: ticketNo,
+				TicketID: f.TicketID,
 			}); err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
@@ -672,9 +677,14 @@ func (s *server) handleFlightsGet() http.HandlerFunc {
 func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
 
 		if r.Method == http.MethodGet {
-			f, err := s.store.Flight().Find(vars["dep_date"], vars["line_code"])
+			f, err := s.store.Flight().Find(id)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
@@ -693,7 +703,7 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodDelete {
-			err := s.store.Flight().Delete(vars["dep_date"], vars["line_code"])
+			err := s.store.Flight().Delete(id)
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
@@ -713,7 +723,7 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Flight().Update(vars["dep_date"], vars["line_code"], &store.FlightModel{
+			if err := s.store.Flight().Update(id, &store.FlightModel{
 				DepDate:   f.DepDate,
 				LineCode:  f.LineCode,
 				IsHot:     f.IsHot,
@@ -1017,7 +1027,7 @@ func (s *server) handlePurchasesGet() http.HandlerFunc {
 				TotalPrice:      v.TotalPrice,
 				ContactPhone:    v.ContactPhone,
 				ContactEmail:    v.ContactEmail,
-				CashierLogin:    v.CashierLogin,
+				CashierID:       v.CashierID,
 			}
 		}
 		s.respond(w, r, 200, response)
@@ -1051,7 +1061,7 @@ func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 				TotalPrice:      p.TotalPrice,
 				ContactPhone:    p.ContactPhone,
 				ContactEmail:    p.ContactEmail,
-				CashierLogin:    p.CashierLogin,
+				CashierID:       p.CashierID,
 			})
 		}
 
@@ -1082,7 +1092,7 @@ func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 				TotalPrice:      p.TotalPrice,
 				ContactPhone:    p.ContactPhone,
 				ContactEmail:    p.ContactEmail,
-				CashierLogin:    p.CashierLogin,
+				CashierID:       p.CashierID,
 			}); err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
@@ -1210,7 +1220,7 @@ func (s *server) handleTicketsGet() http.HandlerFunc {
 
 		for i, v := range *ticket {
 			response.Items[i] = Ticket{
-				Number:                  v.Number,
+				ID:                      v.ID,
 				PassengerLastName:       v.PassengerLastName,
 				PassengerGivenName:      v.PassengerGivenName,
 				PassengerBirthDate:      v.PassengerBirthDate,
@@ -1226,14 +1236,14 @@ func (s *server) handleTicketsGet() http.HandlerFunc {
 func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		ticketNo, err := strconv.ParseInt(vars["id"], 10, 64)
+		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
 			return
 		}
 
 		if r.Method == http.MethodGet {
-			p, err := s.store.Ticket().Find(ticketNo)
+			p, err := s.store.Ticket().Find(id)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					s.error(w, r, http.StatusNotFound, errRequestedItemDoesNotExist)
@@ -1243,7 +1253,7 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 			s.respond(w, r, http.StatusOK, &Ticket{
-				Number:                  p.Number,
+				ID:                      p.ID,
 				PassengerLastName:       p.PassengerLastName,
 				PassengerGivenName:      p.PassengerGivenName,
 				PassengerBirthDate:      p.PassengerBirthDate,
@@ -1254,7 +1264,7 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodDelete {
-			err = s.store.Ticket().Delete(ticketNo)
+			err = s.store.Ticket().Delete(id)
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
@@ -1274,8 +1284,8 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 
-			if err := s.store.Ticket().Update(ticketNo, &store.TicketModel{
-				Number:                  t.Number,
+			if err := s.store.Ticket().Update(id, &store.TicketModel{
+				ID:                      t.ID,
 				PassengerLastName:       t.PassengerLastName,
 				PassengerGivenName:      t.PassengerGivenName,
 				PassengerBirthDate:      t.PassengerBirthDate,
@@ -1383,10 +1393,9 @@ func (s *server) handleFlightInTicketsCreate() http.HandlerFunc {
 		}
 
 		if err := s.store.FlightInTicket().Create(&store.FlightInTicketModel{
-			DepDate:  f.DepDate,
-			LineCode: f.LineCode,
+			FlightID: f.FlightID,
 			SeatID:   f.SeatID,
-			TicketNo: f.TicketNo,
+			TicketID: f.TicketID,
 		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
@@ -1512,7 +1521,7 @@ func (s *server) handlePurchasesCreate() http.HandlerFunc {
 			TotalPrice:      p.TotalPrice,
 			ContactPhone:    p.ContactPhone,
 			ContactEmail:    p.ContactEmail,
-			CashierLogin:    p.CashierLogin,
+			CashierID:       p.CashierID,
 		}); err != nil {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
@@ -1558,7 +1567,7 @@ func (s *server) handleTicketsCreate() http.HandlerFunc {
 			return
 		}
 		if err := s.store.Ticket().Create(&store.TicketModel{
-			Number:                  t.Number,
+			ID:                      t.ID,
 			PassengerLastName:       t.PassengerLastName,
 			PassengerGivenName:      t.PassengerGivenName,
 			PassengerBirthDate:      t.PassengerBirthDate,

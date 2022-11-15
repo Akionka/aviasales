@@ -7,14 +7,13 @@ type PurchaseRepository struct {
 }
 
 func (r *PurchaseRepository) Create(p *store.PurchaseModel) error {
-	_, err := r.store.db.Exec("INSERT INTO purchase (id, date, booking_office_id, total_price, contact_phone, contact_email, cashier_login) VALUES (?, ?, ?, ?, ?, ?, ?)",
-		p.ID,
+	_, err := r.store.db.Exec("INSERT INTO purchase (date, booking_office_id, total_price, contact_phone, contact_email, cashier_login) VALUES (?, ?, ?, ?, ?, ?)",
 		p.Date,
 		p.BookingOfficeID,
 		p.TotalPrice,
 		p.ContactPhone,
 		p.ContactEmail,
-		p.CashierLogin,
+		p.CashierID,
 	)
 	return err
 }
@@ -42,14 +41,14 @@ func (r *PurchaseRepository) FindAll(row_count, offset int) (*[]store.PurchaseMo
 }
 
 func (r *PurchaseRepository) Update(id int, p *store.PurchaseModel) error {
-	res, err := r.store.db.Exec("UPDATE purchase SET id = ?, date = ?, booking_office_id = ?, total_price = ?, contact_phone = ?, contact_email = ?, cashier_login = ? WHERE id = ?",
+	res, err := r.store.db.Exec("UPDATE purchase SET id = ?, date = ?, booking_office_id = ?, total_price = ?, contact_phone = ?, contact_email = ?, cashier_id = ? WHERE id = ?",
 		p.ID,
 		p.Date,
 		p.BookingOfficeID,
 		p.TotalPrice,
 		p.ContactPhone,
 		p.ContactEmail,
-		p.CashierLogin,
+		p.CashierID,
 		id,
 	)
 	if err != nil {

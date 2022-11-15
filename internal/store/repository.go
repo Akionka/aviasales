@@ -20,29 +20,30 @@ type BookingOfficeRepository interface {
 
 type CashierRepository interface {
 	Create(*CashierModel) error
-	Find(login string) (*CashierModel, error)
+	Find(id int) (*CashierModel, error)
+	FindByLogin(login string) (*CashierModel, error)
 	FindAll(row_count, offset int) (*[]CashierModel, error)
-	Update(login string, c *CashierModel) error
+	Update(id int, c *CashierModel) error
 	UpdatePassword(*CashierModel) error
-	Delete(login string) error
+	Delete(id int) error
 	TotalCount() (int, error)
 }
 
 type FlightInTicketRepository interface {
 	Create(*FlightInTicketModel) error
-	Find(depDate string, lineCode string, seatID int, ticketNo int64) (*FlightInTicketModel, error)
+	Find(id int) (*FlightInTicketModel, error)
 	FindAll(row_count, offset int) (*[]FlightInTicketModel, error)
-	Update(depDate string, lineCode string, seatID int, ticketNo int64, f *FlightInTicketModel) error
-	Delete(depDate string, lineCode string, seatID int, ticketNo int64) error
+	Update(id int, f *FlightInTicketModel) error
+	Delete(id int) error
 	TotalCount() (int, error)
 }
 
 type FlightRepository interface {
 	Create(*FlightModel) error
-	Find(depDate string, lineCode string) (*FlightModel, error)
+	Find(id int) (*FlightModel, error)
 	FindAll(row_count, offset int) (*[]FlightModel, error)
-	Update(depDate string, lineCode string, f *FlightModel) error
-	Delete(depDate string, lineCode string) error
+	Update(id int, f *FlightModel) error
+	Delete(id int) error
 	TotalCount() (int, error)
 }
 
@@ -93,9 +94,9 @@ type SeatRepository interface {
 
 type TicketRepository interface {
 	Create(*TicketModel) error
-	Find(number int64) (*TicketModel, error)
+	Find(id int) (*TicketModel, error)
 	FindAll(row_count, offset int) (*[]TicketModel, error)
-	Update(number int64, t *TicketModel) error
-	Delete(number int64) error
+	Update(id int, t *TicketModel) error
+	Delete(id int) error
 	TotalCount() (int, error)
 }

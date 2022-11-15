@@ -33,6 +33,7 @@ type BookingOfficeModel struct {
 }
 
 type CashierModel struct {
+	ID         int    `db:"id"`
 	Login      string `db:"login"`
 	LastName   string `db:"last_name"`
 	FirstName  string `db:"first_name"`
@@ -41,6 +42,7 @@ type CashierModel struct {
 }
 
 type FlightModel struct {
+	ID        int        `db:"id"`
 	DepDate   *time.Time `db:"dep_date"`
 	LineCode  string     `db:"line_code"`
 	IsHot     bool       `db:"is_hot"`
@@ -48,10 +50,10 @@ type FlightModel struct {
 }
 
 type FlightInTicketModel struct {
-	DepDate  *time.Time `db:"dep_date"`
-	LineCode string     `db:"line_code"`
-	SeatID   int        `db:"seat_id"`
-	TicketNo int64      `db:"ticket_no"`
+	ID       int `db:"id"`
+	FlightID int `db:"flight_id"`
+	SeatID   int `db:"seat_id"`
+	TicketID int `db:"ticket_id"`
 }
 
 type LineModel struct {
@@ -80,18 +82,18 @@ type PurchaseModel struct {
 	TotalPrice      float64    `db:"total_price"`
 	ContactPhone    string     `db:"contact_phone"`
 	ContactEmail    string     `db:"contact_email"`
-	CashierLogin    string     `db:"cashier_login"`
+	CashierID       string     `db:"cashier_id"`
 }
 
 type SeatModel struct {
 	ID             int    `db:"id"`
 	Number         string `db:"number"`
 	Class          string `db:"class"`
-	LinerModelCode string `db:"liner_model_code"`
+	LinerModelCode string `db:"model_code"`
 }
 
 type TicketModel struct {
-	Number                  int64      `db:"number"`
+	ID                      int        `db:"id"`
 	PassengerLastName       string     `db:"pass_last_name"`
 	PassengerGivenName      string     `db:"pass_given_name"`
 	PassengerBirthDate      *time.Time `db:"pass_birth_date"`
