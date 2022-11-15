@@ -55,7 +55,7 @@ func (r *FlightInTicketRepository) Update(id int, f *store.FlightInTicketModel) 
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/akionka/aviasales/internal/store"
+	"github.com/akionka/aviasales/internal/store/mysqlstore"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/handlers"
@@ -266,6 +267,15 @@ func (s *server) handleAirportGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
+		if _, err := s.store.Airport().Find(vars["code"]); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			a, err := s.store.Airport().Find(vars["code"])
 			if err != nil {
@@ -310,6 +320,10 @@ func (s *server) handleAirportGetDeleteUpdate() http.HandlerFunc {
 				City:     a.City,
 				Timezone: a.Timezone,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -359,6 +373,15 @@ func (s *server) handleBookingOfficeGetDeleteUpdate() http.HandlerFunc {
 			return
 		}
 
+		if _, err := s.store.BookingOffice().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			o, err := s.store.BookingOffice().Find(id)
 			if err != nil {
@@ -403,6 +426,10 @@ func (s *server) handleBookingOfficeGetDeleteUpdate() http.HandlerFunc {
 				Address:     b.Address,
 				PhoneNumber: b.PhoneNumber,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -453,6 +480,15 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 			return
 		}
 
+		if _, err := s.store.Cashier().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			c, err := s.store.Cashier().Find(id)
 			if err != nil {
@@ -477,6 +513,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				s.error(w, r, http.StatusForbidden, errCantDeleteAdmin)
 				return
 			}
+
 			err := s.store.Cashier().Delete(id)
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
@@ -507,6 +544,10 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				FirstName:  c.FirstName,
 				MiddleName: c.MiddleName,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -522,6 +563,15 @@ func (s *server) handleCashierPasswordUpdate() http.HandlerFunc {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if _, err := s.store.Cashier().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
 
@@ -589,6 +639,15 @@ func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 			return
 		}
 
+		if _, err := s.store.FlightInTicket().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			f, err := s.store.FlightInTicket().Find(id)
 			if err != nil {
@@ -634,6 +693,10 @@ func (s *server) handleFlightInTicketGetDeleteUpdate() http.HandlerFunc {
 				SeatID:   f.SeatID,
 				TicketID: f.TicketID,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -683,6 +746,15 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 			return
 		}
 
+		if _, err := s.store.Flight().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			f, err := s.store.Flight().Find(id)
 			if err != nil {
@@ -729,6 +801,10 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 				IsHot:     f.IsHot,
 				LinerCode: f.LinerCode,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -774,6 +850,15 @@ func (s *server) handleLinesGet() http.HandlerFunc {
 func (s *server) handleLineGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+
+		if _, err := s.store.Line().Find(vars["code"]); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
 
 		if r.Method == http.MethodGet {
 			l, err := s.store.Line().Find(vars["code"])
@@ -825,6 +910,10 @@ func (s *server) handleLineGetDeleteUpdate() http.HandlerFunc {
 				DepAirport: l.DepAirport,
 				ArrAirport: l.ArrAirport,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -866,6 +955,15 @@ func (s *server) handleLinerModelsGet() http.HandlerFunc {
 func (s *server) handleLinerModelGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+
+		if _, err := s.store.LinerModel().Find(vars["code"]); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
 
 		if r.Method == http.MethodGet {
 			m, err := s.store.LinerModel().Find(vars["code"])
@@ -909,6 +1007,10 @@ func (s *server) handleLinerModelGetDeleteUpdate() http.HandlerFunc {
 				IATATypeCode: m.IATATypeCode,
 				Name:         m.Name,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -951,6 +1053,15 @@ func (s *server) handleLinerGetDeleteUpdate() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 
+		if _, err := s.store.Liner().Find(vars["code"]); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			l, err := s.store.Liner().Find(vars["code"])
 			if err != nil {
@@ -991,6 +1102,10 @@ func (s *server) handleLinerGetDeleteUpdate() http.HandlerFunc {
 				IATACode:  l.IATACode,
 				ModelCode: l.ModelCode,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -1044,6 +1159,15 @@ func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 			return
 		}
 
+		if _, err := s.store.Purchase().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			p, err := s.store.Purchase().Find(id)
 			if err != nil {
@@ -1094,6 +1218,10 @@ func (s *server) handlePurchaseGetDeleteUpdate() http.HandlerFunc {
 				ContactEmail:    p.ContactEmail,
 				CashierID:       p.CashierID,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -1145,6 +1273,15 @@ func (s *server) handleSeatGetDeleteUpdate() http.HandlerFunc {
 			return
 		}
 
+		if _, err := s.store.Seat().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
 		if r.Method == http.MethodGet {
 			p, err := s.store.Seat().Find(id)
 			if err != nil {
@@ -1190,6 +1327,10 @@ func (s *server) handleSeatGetDeleteUpdate() http.HandlerFunc {
 				Class:          seat.Class,
 				LinerModelCode: seat.LinerModelCode,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}
@@ -1239,6 +1380,15 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 		id, err := strconv.Atoi(vars["id"])
 		if err != nil {
 			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		if _, err := s.store.Ticket().Find(id); err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
 
@@ -1293,6 +1443,10 @@ func (s *server) handleTicketGetDeleteUpdate() http.HandlerFunc {
 				PassengerSex:            t.PassengerSex,
 				PurchaseID:              t.PurchaseID,
 			}); err != nil {
+				if err == mysqlstore.ErrNoChanges {
+					s.error(w, r, http.StatusBadRequest, err)
+					return
+				}
 				s.error(w, r, http.StatusInternalServerError, err)
 				return
 			}

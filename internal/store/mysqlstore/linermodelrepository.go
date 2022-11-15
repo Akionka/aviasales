@@ -51,7 +51,7 @@ func (r *LinerModelRepository) Update(code string, m *store.LinerModelModel) err
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

@@ -59,7 +59,7 @@ func (r *LineRepository) Update(code string, l *store.LineModel) error {
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

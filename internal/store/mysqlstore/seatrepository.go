@@ -54,7 +54,7 @@ func (r *SeatRepository) Update(id int, s *store.SeatModel) error {
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

@@ -53,7 +53,7 @@ func (r *AirportRepository) Update(code string, a *store.AirportModel) error {
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

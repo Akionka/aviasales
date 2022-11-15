@@ -64,7 +64,7 @@ func (r *CashierRepository) Update(id int, c *store.CashierModel) error {
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

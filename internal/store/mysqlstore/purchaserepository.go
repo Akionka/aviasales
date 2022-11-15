@@ -59,7 +59,7 @@ func (r *PurchaseRepository) Update(id int, p *store.PurchaseModel) error {
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

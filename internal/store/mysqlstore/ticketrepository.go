@@ -58,7 +58,7 @@ func (r *TicketRepository) Update(id int, t *store.TicketModel) error {
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }

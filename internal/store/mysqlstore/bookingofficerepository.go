@@ -55,7 +55,7 @@ func (r *BookingOfficeRepository) Update(id int, o *store.BookingOfficeModel) er
 		return err
 	}
 	if count == 0 {
-		return ErrUpdatedItemDoesNotExist
+		return ErrNoChanges
 	}
 	return err
 }
