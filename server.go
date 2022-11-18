@@ -64,7 +64,16 @@ func (s *server) configureRouter() {
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodPost, http.MethodOptions}),
 		handlers.AllowedOrigins([]string{"http://127.0.0.1:5500", "http://localhost:3000"})))
 
-	s.router.HandleFunc("/session", s.handleSessionsCreate()).Methods("POST", "OPTIONS")
+	s.router.HandleFunc("/session", s.handleSessionsCreate()).Methods(http.MethodPost, http.MethodOptions)
+
+	s.router.HandleFunc("/timezones", func(w http.ResponseWriter, r *http.Request) {
+		timezones, err := s.store.Timezone().FindAll()
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+		s.respond(w, r, http.StatusOK, timezones)
+	}).Methods(http.MethodGet, http.MethodOptions)
 
 	secured := s.router.NewRoute().Subrouter()
 	secured.Use(s.authenticateUser)

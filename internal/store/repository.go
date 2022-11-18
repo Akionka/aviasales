@@ -100,3 +100,7 @@ type TicketRepository interface {
 	Delete(id int) error
 	TotalCount() (int, error)
 }
+
+type TimezoneRepository interface {
+	FindAll() ([]string, error)
+}

@@ -23,6 +23,7 @@ type Store struct {
 	purchaseRepository       *PurchaseRepository
 	seatRepository           *SeatRepository
 	ticketRepository         *TicketRepository
+	timezoneRepository       *TimezoneRepository
 }
 
 func New(db *sqlx.DB) *Store {
@@ -139,4 +140,14 @@ func (s *Store) Ticket() store.TicketRepository {
 		store: s,
 	}
 	return s.ticketRepository
+}
+
+func (s *Store) Timezone() store.TimezoneRepository {
+	if s.timezoneRepository != nil {
+		return s.timezoneRepository
+	}
+	s.timezoneRepository = &TimezoneRepository{
+		store: s,
+	}
+	return s.timezoneRepository
 }

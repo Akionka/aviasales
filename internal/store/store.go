@@ -18,6 +18,7 @@ type Store interface {
 	Purchase() PurchaseRepository
 	Seat() SeatRepository
 	Ticket() TicketRepository
+	Timezone() TimezoneRepository
 }
 
 type AirportModel struct {
