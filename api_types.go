@@ -55,7 +55,7 @@ func (o *BookingOffice) Validate() error {
 	return validation.ValidateStruct(o,
 		validation.Field(&o.ID, validation.Required, validation.Min(0)),
 		validation.Field(&o.Address, validation.Required),
-		validation.Field(&o.PhoneNumber, validation.Match(regexp.MustCompile("^[0-9]{11-15}$"))),
+		validation.Field(&o.PhoneNumber, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{11,15}$"))),
 	)
 }
 
@@ -90,7 +90,7 @@ type Flight struct {
 func (f *Flight) Validate() error {
 	return validation.ValidateStruct(f,
 		validation.Field(&f.ID, validation.Required),
-		validation.Field(&f.DepDate, validation.Required),
+		validation.Field(&f.DepDate, validation.Required, validation.Date(time.RFC3339)),
 		validation.Field(&f.LineCode, validation.Required, validation.Length(3, 6), validation.Match(regexp.MustCompile("^[A-Z]{2}[0-9]{1,4}$"))),
 		validation.Field(&f.IsHot),
 		validation.Field(&f.LinerCode, validation.Required, validation.Length(3, 7), validation.Match(regexp.MustCompile(("^[A-Z]{2}[0-9]{1,5}$")))),
@@ -173,7 +173,7 @@ func (p *Purchase) Validate() error {
 		validation.Field(&p.Date, validation.Required),
 		validation.Field(&p.BookingOfficeID, validation.Required),
 		validation.Field(&p.TotalPrice, validation.Required, validation.Min(0)),
-		validation.Field(&p.ContactPhone, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{11-15}$"))),
+		validation.Field(&p.ContactPhone, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{11,15}$"))),
 		validation.Field(&p.ContactEmail, validation.Required, is.Email),
 		validation.Field(&p.CashierID, validation.Required),
 	)
