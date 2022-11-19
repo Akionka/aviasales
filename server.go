@@ -1731,7 +1731,7 @@ func (s *server) handleSeatsCreate() http.HandlerFunc {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
-		s.respond(w, r, http.StatusOK, s)
+		s.respond(w, r, http.StatusOK, seat)
 	}
 }
 
