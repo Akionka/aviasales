@@ -321,6 +321,7 @@ export const api = createApi({
       invalidatesTags: (result, error, { code }) => [
         { type: "Airport", id: code },
         { type: "Airport", id: "PARTIAL-LIST" },
+        { type: "Line", id: "PARTIAL-LIST" },
       ],
     }),
 
@@ -465,6 +466,7 @@ export const api = createApi({
       invalidatesTags: (result, error, { code }) => [
         { type: "Line", id: code },
         { type: "Line", id: "PARTIAL-LIST" },
+        { type: "Flight", id: "PARTIAL-LIST" },
       ],
     }),
 
@@ -490,6 +492,7 @@ export const api = createApi({
       invalidatesTags: (result, error, { code }) => [
         { type: "Liner", id: code },
         { type: "Liner", id: "PARTIAL-LIST" },
+        { type: "Flight", id: "PARTIAL-LIST" },
       ],
     }),
 
@@ -518,6 +521,7 @@ export const api = createApi({
         { type: "LinerModel", id: code },
         { type: "LinerModel", id: "PARTIAL-LIST" },
         { type: "Liner", id: "PARTIAL-LIST" },
+        { type: "Seat", id: "PARTIAL-LIST" },
       ],
     }),
 
