@@ -38,7 +38,7 @@ func (r *LinerModelRepository) FindAll(row_count, offset int) (*[]store.LinerMod
 }
 
 func (r *LinerModelRepository) Update(code string, m *store.LinerModelModel) error {
-	res, err := r.store.db.Exec("UDATE liner_model SET iata_type_code = ?, name = ? WHERE iata_type_code = ?",
+	res, err := r.store.db.Exec("UPDATE liner_model SET iata_type_code = ?, name = ? WHERE iata_type_code = ?",
 		m.IATATypeCode,
 		m.Name,
 		code,
