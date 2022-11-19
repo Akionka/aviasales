@@ -53,7 +53,7 @@ type BookingOffice struct {
 
 func (o *BookingOffice) Validate() error {
 	return validation.ValidateStruct(o,
-		validation.Field(&o.ID, validation.Required, validation.Min(0)),
+		validation.Field(&o.ID),
 		validation.Field(&o.Address, validation.Required),
 		validation.Field(&o.PhoneNumber, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{11,15}$"))),
 	)
@@ -70,7 +70,7 @@ type Cashier struct {
 
 func (c *Cashier) Validate() error {
 	return validation.ValidateStruct(c,
-		validation.Field(&c.ID, validation.Required),
+		validation.Field(&c.ID),
 		validation.Field(&c.Login, validation.Required, validation.Length(3, 32), is.Alphanumeric),
 		validation.Field(&c.FirstName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.LastName, validation.Required, validation.Length(3, 64)),
@@ -89,8 +89,9 @@ type Flight struct {
 
 func (f *Flight) Validate() error {
 	return validation.ValidateStruct(f,
-		validation.Field(&f.ID, validation.Required),
-		validation.Field(&f.DepDate, validation.Required, validation.Date(time.RFC3339)),
+		validation.Field(&f.ID),
+		validation.Field(&f.DepDate, validation.Required), //  validation.Date(time.RFC3339)
+
 		validation.Field(&f.LineCode, validation.Required, validation.Length(3, 6), validation.Match(regexp.MustCompile("^[A-Z]{2}[0-9]{1,4}$"))),
 		validation.Field(&f.IsHot),
 		validation.Field(&f.LinerCode, validation.Required, validation.Length(3, 7), validation.Match(regexp.MustCompile(("^[A-Z]{2}[0-9]{1,5}$")))),
@@ -106,7 +107,7 @@ type FlightInTicket struct {
 
 func (f *FlightInTicket) Validate() error {
 	return validation.ValidateStruct(f,
-		validation.Field(&f.ID, validation.Required),
+		validation.Field(&f.ID),
 		validation.Field(&f.FlightID, validation.Required),
 		validation.Field(&f.SeatID, validation.Required),
 		validation.Field(&f.TicketID, validation.Required),
@@ -127,7 +128,7 @@ func (l *Line) Validate() error {
 		validation.Field(&l.LineCode, validation.Required, validation.Length(3, 6), validation.Match(regexp.MustCompile("^[A-Z]{2}[0-9]{1,4}$"))),
 		validation.Field(&l.DepTime, validation.Required),
 		validation.Field(&l.ArrTime, validation.Required),
-		validation.Field(&l.BasePrice, validation.Required, validation.Min(0)),
+		validation.Field(&l.BasePrice, validation.Required, validation.Min(0.0)),
 		validation.Field(&l.DepAirport, validation.Required, validation.Length(3, 3), is.Alpha),
 		validation.Field(&l.ArrAirport, validation.Required, validation.Length(3, 3), is.Alpha),
 	)
@@ -153,7 +154,7 @@ type LinerModel struct {
 func (m *LinerModel) Validate() error {
 	return validation.ValidateStruct(m,
 		validation.Field(&m.IATATypeCode, validation.Required, validation.Length(4, 4), is.Alphanumeric),
-		validation.Field(&m.Name, validation.Required, validation.Length(3, 64), is.Alphanumeric),
+		validation.Field(&m.Name, validation.Required, validation.Length(3, 64)),
 	)
 }
 
@@ -169,7 +170,7 @@ type Purchase struct {
 
 func (p *Purchase) Validate() error {
 	return validation.ValidateStruct(p,
-		validation.Field(&p.ID, validation.Required),
+		validation.Field(&p.ID),
 		validation.Field(&p.Date, validation.Required),
 		validation.Field(&p.BookingOfficeID, validation.Required),
 		validation.Field(&p.TotalPrice, validation.Required, validation.Min(0)),
@@ -188,7 +189,7 @@ type Seat struct {
 
 func (s *Seat) Validate() error {
 	return validation.ValidateStruct(s,
-		validation.Field(&s.ID, validation.Required),
+		validation.Field(&s.ID),
 		validation.Field(&s.Number, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{1,2}[A-Z]{1}$"))),
 		validation.Field(&s.Class, validation.Required, validation.In("J", "W", "Y")),
 		validation.Field(&s.LinerModelCode, validation.Required, validation.Required, validation.Length(4, 4), is.Alphanumeric),
@@ -207,7 +208,7 @@ type Ticket struct {
 
 func (t *Ticket) Validate() error {
 	return validation.ValidateStruct(t,
-		validation.Field(&t.ID, validation.Required),
+		validation.Field(&t.ID),
 		validation.Field(&t.PassengerLastName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&t.PassengerGivenName, validation.Required, validation.Length(3, 128)),
 		validation.Field(&t.PassengerBirthDate, validation.Required, validation.By(checkAgeOver18)),
