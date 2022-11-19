@@ -173,7 +173,7 @@ func (p *Purchase) Validate() error {
 		validation.Field(&p.ID),
 		validation.Field(&p.Date, validation.Required),
 		validation.Field(&p.BookingOfficeID, validation.Required),
-		validation.Field(&p.TotalPrice, validation.Required, validation.Min(0)),
+		validation.Field(&p.TotalPrice, validation.Required, validation.Min(0.0)),
 		validation.Field(&p.ContactPhone, validation.Required, validation.Match(regexp.MustCompile("^[0-9]{11,15}$"))),
 		validation.Field(&p.ContactEmail, validation.Required, is.Email),
 		validation.Field(&p.CashierID, validation.Required),
@@ -213,7 +213,7 @@ func (t *Ticket) Validate() error {
 		validation.Field(&t.PassengerGivenName, validation.Required, validation.Length(3, 128)),
 		validation.Field(&t.PassengerBirthDate, validation.Required, validation.By(checkAgeOver18)),
 		validation.Field(&t.PassengerPassportNumber, validation.Required, validation.Length(10, 10), is.Digit),
-		validation.Field(&t.PassengerSex, validation.Required, validation.In(1, 2)),
+		validation.Field(&t.PassengerSex, validation.Required, validation.In(uint8(1), uint8(2))),
 		validation.Field(&t.PurchaseID, validation.Required),
 	)
 }
