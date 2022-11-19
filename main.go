@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	db, err := sqlx.Connect("mysql", "root:password@(localhost)/aviacompany?parseTime=true")
+	db, err := sqlx.Connect("mysql", "root:password@(localhost)/aviacompany?parseTime=true&time_zone=%27GMT%27")
 	if err != nil {
 		log.Fatal(err)
 	}
