@@ -35,7 +35,7 @@ func (r *FlightRepository) FindAll(row_count, offset int) (*[]store.FlightModel,
 	}
 
 	flights := &[]store.FlightModel{}
-	if err := r.store.db.Select(flights, "SELECT * FROM flight ORDER BY dep_date, line_code LIMIT ?, ?", offset, row_count); err != nil {
+	if err := r.store.db.Select(flights, "SELECT * FROM flight ORDER BY id LIMIT ?, ?", offset, row_count); err != nil {
 		return nil, err
 	}
 	return flights, nil

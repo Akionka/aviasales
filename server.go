@@ -484,6 +484,7 @@ func (s *server) handleCashiersGet() http.HandlerFunc {
 
 		for i, v := range *cashiers {
 			response.Items[i] = Cashier{
+				ID:         v.ID,
 				Login:      v.Login,
 				LastName:   v.LastName,
 				FirstName:  v.FirstName,
@@ -533,7 +534,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodDelete {
-			if vars["login"] == "admin" {
+			if id == 1 {
 				s.error(w, r, http.StatusForbidden, errCantDeleteAdmin)
 				return
 			}
@@ -553,7 +554,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				s.error(w, r, http.StatusBadRequest, err)
 				return
 			}
-			if vars["login"] == "admin" && c.Login != "admin" {
+			if id == 1 && c.Login != "admin" {
 				s.error(w, r, http.StatusForbidden, errCantUpdateAdminLogin)
 				return
 			}
@@ -751,6 +752,7 @@ func (s *server) handleFlightsGet() http.HandlerFunc {
 
 		for i, v := range *flights {
 			response.Items[i] = Flight{
+				ID:        v.ID,
 				DepDate:   v.DepDate,
 				LineCode:  v.LineCode,
 				LinerCode: v.LinerCode,
