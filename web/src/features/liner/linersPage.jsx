@@ -1,0 +1,224 @@
+import SaveIcon from "@mui/icons-material/Save";
+import AddIcon from "@mui/icons-material/Add";
+import CancelIcon from "@mui/icons-material/Cancel";
+import DeleteIcon from "@mui/icons-material/DeleteForeverOutlined";
+import EditIcon from "@mui/icons-material/Edit";
+import { Button, Skeleton } from "@mui/material";
+import {
+  useCreateLinerMutation,
+  useDeleteLinerByCodeMutation,
+  useGetLinersQuery,
+  useUpdateLinerByCodeMutation,
+} from "../../app/services/api";
+import { useEffect, useState } from "react";
+import {
+  DataGrid,
+  GridActionsCellItem,
+  GridRowModes,
+  GridToolbarContainer,
+} from "@mui/x-data-grid";
+
+const EditToolbar = ({ setRows, setRowModesModel }) => {
+  const handleClick = () => {
+    setRows((oldRows) => [
+      ...oldRows,
+      { iata_code: '', model_code: '', isNew: true },
+    ]);
+    setRowModesModel((oldModel) => ({
+      ...oldModel,
+      '': { mode: GridRowModes.Edit, fieldToFocus: "iata_code" },
+    }));
+  };
+
+  return (
+    <GridToolbarContainer>
+      <Button startIcon={<AddIcon />} onClick={handleClick}>
+        Добавить запись
+      </Button>
+    </GridToolbarContainer>
+  );
+};
+
+export const LinersPage = () => {
+  const [page, setPage] = useState(0);
+  const [rowCount, setRowCount] = useState(10);
+
+  const [rowModesModel, setRowModesModel] = useState({});
+  const [rows, setRows] = useState([]);
+
+  const { data, isLoading } = useGetLinersQuery({
+    page: page + 1,
+    count: rowCount,
+  });
+
+  useEffect(() => {
+    setRows((prevRows) => {
+      const newRows = prevRows?.filter((r) => r.isNew) || [];
+      if (data?.items) {
+        return [...data?.items, ...newRows] || [];
+      }
+      return prevRows;
+    });
+  }, [data?.items]);
+
+  const [updateLiner, { isLoadingUpdate }] =    useUpdateLinerByCodeMutation();
+  const [deleteLiner, { isLoadingDelete }] =    useDeleteLinerByCodeMutation();
+  const [createLiner, { isLoadingCreate }] =    useCreateLinerMutation();
+
+  const handleRowEditStart = (params, event) => {
+    event.defaultMuiPrevented = true;
+  };
+
+  const handleRowEditStop = (params, event) => {
+    event.defaultMuiPrevented = true;
+  };
+
+  const handleEditClick = (row) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [row.id]: { mode: GridRowModes.Edit },
+    });
+  };
+
+  const handleSaveClick = (row) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [row.id]: { mode: GridRowModes.View },
+    });
+  };
+
+  const handleDeleteClick = (row) => () => {
+    deleteLiner({ code: row.id })
+      .unwrap()
+      .catch(({ data: { error } }) => alert(error));
+  };
+
+  const handleCancelClick = (row) => () => {
+    setRowModesModel({
+      ...rowModesModel,
+      [row.id]: { mode: GridRowModes.View, ignoreModifications: true },
+    });
+
+    const editedRow = rows.find((r) => r.id === row.id);
+    if (editedRow.isNew) {
+      setRows(rows.filter((r) => r.id !== row.id));
+    }
+  };
+
+  const columns = [
+    {
+      field: "iata_code",
+      headerName: "Код самолёта",
+      width: 150,
+      editable: true,
+    },
+    {
+      field: "model_code",
+      headerName: "Код модели самолёта",
+      width: 175,
+      editable: true,
+    },
+    {
+      field: "actions",
+      headerName: "Действия",
+      type: "actions",
+      width: 140,
+      getActions: (row) => {
+        const isInEditMode = rowModesModel[row.id]?.mode === GridRowModes.Edit;
+        if (isInEditMode) {
+          return [
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              onClick={handleSaveClick(row)}
+            />,
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              className="textPrimary"
+              onClick={handleCancelClick(row)}
+              color="inherit"
+            />,
+          ];
+        }
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(row)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(row)}
+            color="inherit"
+          />,
+        ];
+      },
+    },
+  ];
+
+  if (isLoading)
+    return <Skeleton variant="rectangular" width={512} height={512} />;
+
+  return (
+    <>
+      <DataGrid
+        autoHeight
+        editMode="row"
+        getRowId={(row) => row.iata_code}
+        columns={columns}
+        rows={rows}
+        rowCount={data.total_count}
+        rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
+        pageSize={rowCount}
+        onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
+        page={page}
+        onPageChange={(newPage) => {
+          setPage(newPage);
+        }}
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+        onRowEditStart={handleRowEditStart}
+        onRowEditStop={handleRowEditStop}
+        components={{
+          Toolbar: EditToolbar,
+        }}
+        componentsProps={{
+          toolbar: { setRows, setRowModesModel },
+        }}
+        paginationMode="server"
+        loading={
+          isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+        }
+        experimentalFeatures={{ newEditingApi: true }}
+        processRowUpdate={async (newRow, oldRow) => {
+          try {
+            if (newRow.isNew) {
+              const res = await createLiner({
+                liner: newRow,
+              }).unwrap();
+              setRows((prevRows) =>
+                prevRows.filter((row) => row.iata_code !== oldRow.iata_code)
+              );
+              return res;
+            } else {
+              const res = await updateLiner({
+                code: oldRow.iata_code,
+                liner: newRow,
+              }).unwrap();
+              return res;
+            }
+          } catch (error) {
+            throw new Error(error.data.error);
+          }
+        }}
+        onProcessRowUpdateError={(error) => {
+          alert(error);
+        }}
+      />
+    </>
+  );
+};
