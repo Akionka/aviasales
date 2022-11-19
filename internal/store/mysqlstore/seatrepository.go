@@ -7,7 +7,7 @@ type SeatRepository struct {
 }
 
 func (r *SeatRepository) Create(s *store.SeatModel) error {
-	_, err := r.store.db.Exec("INSERT INTO seat (id, number, class, liner_model_class) VALUES (?, ?, ?, ?)",
+	_, err := r.store.db.Exec("INSERT INTO seat (id, number, class, model_code) VALUES (?, ?, ?, ?)",
 		s.ID,
 		s.Number,
 		s.Class,

@@ -64,7 +64,7 @@ func (r *TicketRepository) Update(id int, t *store.TicketModel) error {
 }
 
 func (r *TicketRepository) Delete(id int) error {
-	res, err := r.store.db.Exec("DELETE FROM id WHERE number = ?", id)
+	res, err := r.store.db.Exec("DELETE FROM ticket WHERE id = ?", id)
 	if err != nil {
 		return err
 	}
