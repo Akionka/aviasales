@@ -4,7 +4,15 @@ import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditIcon from "@mui/icons-material/Edit";
 import PasswordIcon from "@mui/icons-material/Password";
-import { Button, Skeleton, Stack, TextField } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   DataGrid,
@@ -16,10 +24,12 @@ import {
 import {
   useCreateCashierMutation,
   useDeleteCashierByIDMutation,
+  useGetCashierByIDQuery,
   useGetCashiersQuery,
   useUpdateCashierByIDMutation,
   useUpdateCashierPasswordMutation,
 } from "../../app/services/api";
+import { EntityInfo } from "../../components/EntityInfo";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -83,10 +93,18 @@ export const CashiersPage = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [rows, setRows] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isLoading } = useGetCashiersQuery({
     page: page + 1,
     count: rowCount,
   });
+
+  const {
+    data: cashier,
+    isLoading: isLoadingCashier,
+    error,
+  } = useGetCashierByIDQuery({ id: searchQuery });
 
   useEffect(() => {
     setRows((prevRows) => {
@@ -155,6 +173,10 @@ export const CashiersPage = () => {
       .unwrap()
       .then(() => alert("Успешно изменен пароль"))
       .catch((error) => alert(error.data.error));
+  };
+
+  const handleSearchQueryChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   const columns = [
@@ -237,62 +259,100 @@ export const CashiersPage = () => {
 
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
-
   return (
     <>
-      <DataGrid
-        autoHeight
-        editMode="row"
-        columns={columns}
-        rows={rows}
-        rowCount={data.total_count}
-        rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
-        pageSize={rowCount}
-        onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
-        page={page}
-        onPageChange={(newPage) => {
-          setPage(newPage);
-        }}
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        components={{
-          Toolbar: EditToolbar,
-        }}
-        componentsProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-        paginationMode="server"
-        loading={
-          isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
-        }
-        experimentalFeatures={{ newEditingApi: true }}
-        processRowUpdate={async (newRow, oldRow) => {
-          try {
-            if (newRow.isNew) {
-              const res = await createCashier({
-                cashier: { ...newRow, id: Number(newRow.id) },
-              }).unwrap();
-              setRows((prevRows) =>
-                prevRows.filter((row) => row.id !== oldRow.id)
-              );
-              return res;
-            } else {
-              const res = await updateCashier({
-                id: oldRow.id,
-                cashier: newRow,
-              }).unwrap();
-              return res;
+      {" "}
+      <Grid rowSpacing={3} columnSpacing={3} container>
+        <Grid item xs={12}>
+          <DataGrid
+            autoHeight
+            editMode="row"
+            columns={columns}
+            rows={rows}
+            rowCount={data.total_count}
+            rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
+            pageSize={rowCount}
+            onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
+            page={page}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+            }}
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+            onRowEditStart={handleRowEditStart}
+            onRowEditStop={handleRowEditStop}
+            components={{
+              Toolbar: EditToolbar,
+            }}
+            componentsProps={{
+              toolbar: { setRows, setRowModesModel },
+            }}
+            paginationMode="server"
+            loading={
+              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
             }
-          } catch (error) {
-            throw new Error(error.data.error);
-          }
-        }}
-        onProcessRowUpdateError={(error) => {
-          alert(error);
-        }}
-      />
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={async (newRow, oldRow) => {
+              try {
+                if (newRow.isNew) {
+                  const res = await createCashier({
+                    cashier: { ...newRow, id: Number(newRow.id) },
+                  }).unwrap();
+                  setRows((prevRows) =>
+                    prevRows.filter((row) => row.id !== oldRow.id)
+                  );
+                  return res;
+                } else {
+                  const res = await updateCashier({
+                    id: oldRow.id,
+                    cashier: newRow,
+                  }).unwrap();
+                  return res;
+                }
+              } catch (error) {
+                throw new Error(error.data.error);
+              }
+            }}
+            onProcessRowUpdateError={(error) => {
+              alert(error);
+            }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            size="small"
+            label="ID кассира"
+            type={"number"}
+          />
+        </Grid>
+        <Grid item xs={5}>
+          {isLoadingCashier && <CircularProgress />}
+          {!isLoadingCashier && error && (
+            <Typography>
+              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+            </Typography>
+          )}
+          {!isLoadingCashier && !error && cashier && searchQuery !== "" && (
+            <EntityInfo
+              items={columns
+                .filter(
+                  (col) => col.type !== "actions" && col.field !== "password"
+                )
+                .map((col) => {
+                  return { label: col.headerName, value: cashier[col.field] };
+                })}
+              onDelete={() =>
+                deleteCashier({ id: cashier.id })
+                  .unwrap()
+                  .catch(({ data: { error } }) => alert(error))
+              }
+            />
+          )}
+        </Grid>
+      </Grid>
     </>
   );
 };

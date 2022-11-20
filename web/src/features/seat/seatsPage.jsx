@@ -3,10 +3,18 @@ import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditIcon from "@mui/icons-material/Edit";
-import { Button, Skeleton } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   useCreateSeatMutation,
   useDeleteSeatByIDMutation,
+  useGetSeatByIDQuery,
   useGetSeatsQuery,
   useUpdateSeatByIDMutation,
 } from "../../app/services/api";
@@ -17,13 +25,11 @@ import {
   GridRowModes,
   GridToolbarContainer,
 } from "@mui/x-data-grid";
+import { EntityInfo } from "../../components/EntityInfo";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
-    setRows((oldRows) => [
-      ...oldRows,
-      { id: 0, class: 'Y', isNew: true },
-    ]);
+    setRows((oldRows) => [...oldRows, { id: 0, class: "Y", isNew: true }]);
     setRowModesModel((oldModel) => ({
       ...oldModel,
       0: { mode: GridRowModes.Edit, fieldToFocus: "id" },
@@ -46,10 +52,18 @@ export const SeatsPage = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [rows, setRows] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isLoading } = useGetSeatsQuery({
     page: page + 1,
     count: rowCount,
   });
+
+  const {
+    data: seat,
+    isLoading: isLoadingSeat,
+    error,
+  } = useGetSeatByIDQuery({ id: searchQuery });
 
   useEffect(() => {
     setRows((prevRows) => {
@@ -61,9 +75,9 @@ export const SeatsPage = () => {
     });
   }, [data?.items]);
 
-  const [updateSeat, { isLoadingUpdate }] =    useUpdateSeatByIDMutation();
-  const [deleteSeat, { isLoadingDelete }] =    useDeleteSeatByIDMutation();
-  const [createSeat, { isLoadingCreate }] =    useCreateSeatMutation();
+  const [updateSeat, { isLoadingUpdate }] = useUpdateSeatByIDMutation();
+  const [deleteSeat, { isLoadingDelete }] = useDeleteSeatByIDMutation();
+  const [createSeat, { isLoadingCreate }] = useCreateSeatMutation();
 
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
@@ -105,13 +119,17 @@ export const SeatsPage = () => {
     }
   };
 
+  const handleSearchQueryChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   const columns = [
     {
       field: "id",
       headerName: "ID места",
       width: 150,
       editable: true,
-      type: "number"
+      type: "number",
     },
     {
       field: "model_code",
@@ -130,12 +148,12 @@ export const SeatsPage = () => {
       headerName: "Класс места",
       width: 175,
       editable: true,
-      type: 'singleSelect',
+      type: "singleSelect",
       valueOptions: [
-        {value: "J", label: "Бизнес"},
-        {value: "W", label: "Комфорт"},
-        {value: "Y", label: "Эконом"},
-      ]
+        { value: "J", label: "Бизнес" },
+        { value: "W", label: "Комфорт" },
+        { value: "Y", label: "Эконом" },
+      ],
     },
     {
       field: "actions",
@@ -184,60 +202,97 @@ export const SeatsPage = () => {
 
   return (
     <>
-      <DataGrid
-        autoHeight
-        editMode="row"
-        getRowId={(row) => row.id}
-        columns={columns}
-        rows={rows}
-        rowCount={data.total_count}
-        rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
-        pageSize={rowCount}
-        onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
-        page={page}
-        onPageChange={(newPage) => {
-          setPage(newPage);
-        }}
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        components={{
-          Toolbar: EditToolbar,
-        }}
-        componentsProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-        paginationMode="server"
-        loading={
-          isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
-        }
-        experimentalFeatures={{ newEditingApi: true }}
-        processRowUpdate={async (newRow, oldRow) => {
-          try {
-            if (newRow.isNew) {
-              const res = await createSeat({
-                seat: newRow,
-              }).unwrap();
-              setRows((prevRows) =>
-                prevRows.filter((row) => row.id !== oldRow.id)
-              );
-              return res;
-            } else {
-              const res = await updateSeat({
-                id: oldRow.id,
-                seat: newRow,
-              }).unwrap();
-              return res;
+      {" "}
+      <Grid rowSpacing={3} columnSpacing={3} container>
+        <Grid item xs={12}>
+          <DataGrid
+            autoHeight
+            editMode="row"
+            getRowId={(row) => row.id}
+            columns={columns}
+            rows={rows}
+            rowCount={data.total_count}
+            rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
+            pageSize={rowCount}
+            onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
+            page={page}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+            }}
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+            onRowEditStart={handleRowEditStart}
+            onRowEditStop={handleRowEditStop}
+            components={{
+              Toolbar: EditToolbar,
+            }}
+            componentsProps={{
+              toolbar: { setRows, setRowModesModel },
+            }}
+            paginationMode="server"
+            loading={
+              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
             }
-          } catch (error) {
-            throw new Error(error.data.error);
-          }
-        }}
-        onProcessRowUpdateError={(error) => {
-          alert(error);
-        }}
-      />
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={async (newRow, oldRow) => {
+              try {
+                if (newRow.isNew) {
+                  const res = await createSeat({
+                    seat: newRow,
+                  }).unwrap();
+                  setRows((prevRows) =>
+                    prevRows.filter((row) => row.id !== oldRow.id)
+                  );
+                  return res;
+                } else {
+                  const res = await updateSeat({
+                    id: oldRow.id,
+                    seat: newRow,
+                  }).unwrap();
+                  return res;
+                }
+              } catch (error) {
+                throw new Error(error.data.error);
+              }
+            }}
+            onProcessRowUpdateError={(error) => {
+              alert(error);
+            }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            size="small"
+            label="ID покупки"
+            type={"number"}
+          />
+        </Grid>
+        <Grid item xs={5}>
+          {isLoadingSeat && <CircularProgress />}
+          {!isLoadingSeat && error && (
+            <Typography>
+              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+            </Typography>
+          )}
+          {!isLoadingSeat && !error && seat && searchQuery !== "" && (
+            <EntityInfo
+              items={columns
+                .filter((col) => col.type !== "actions")
+                .map((col) => {
+                  return { label: col.headerName, value: seat[col.field] };
+                })}
+              onDelete={() =>
+                deleteSeat({ id: seat.id })
+                  .unwrap()
+                  .catch(({ data: { error } }) => alert(error))
+              }
+            />
+          )}
+        </Grid>
+      </Grid>
     </>
   );
 };

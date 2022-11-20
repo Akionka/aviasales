@@ -3,7 +3,14 @@ import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditIcon from "@mui/icons-material/Edit";
-import { Button, Skeleton } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useEffect, useState } from "react";
 import {
   DataGrid,
@@ -14,9 +21,11 @@ import {
 import {
   useCreateOfficeMutation,
   useDeleteOfficeByIDMutation,
+  useGetOfficeByIDQuery,
   useGetOfficesQuery,
   useUpdateOfficeByIDMutation,
 } from "../../app/services/api";
+import { EntityInfo } from "../../components/EntityInfo";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -46,10 +55,18 @@ export const BookingOfficesPage = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [rows, setRows] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isLoading } = useGetOfficesQuery({
     page: page + 1,
     count: rowCount,
   });
+
+  const {
+    data: office,
+    isLoading: isLoadingOffice,
+    error,
+  } = useGetOfficeByIDQuery({ id: searchQuery });
 
   useEffect(() => {
     setRows((prevRows) => {
@@ -103,6 +120,10 @@ export const BookingOfficesPage = () => {
     if (editedRow.isNew) {
       setRows(rows.filter((r) => r.id !== row.id));
     }
+  };
+
+  const handleSearchQueryChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   const columns = [
@@ -167,59 +188,96 @@ export const BookingOfficesPage = () => {
 
   return (
     <>
-      <DataGrid
-        autoHeight
-        editMode="row"
-        columns={columns}
-        rows={rows}
-        rowCount={data.total_count}
-        rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
-        pageSize={rowCount}
-        onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
-        page={page}
-        onPageChange={(newPage) => {
-          setPage(newPage);
-        }}
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        components={{
-          Toolbar: EditToolbar,
-        }}
-        componentsProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-        paginationMode="server"
-        loading={
-          isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
-        }
-        experimentalFeatures={{ newEditingApi: true }}
-        processRowUpdate={async (newRow, oldRow) => {
-          try {
-            if (newRow.isNew) {
-              const res = await createOffice({
-                office: { ...newRow, id: Number(newRow.id) },
-              }).unwrap();
-              setRows((prevRows) =>
-                prevRows.filter((row) => row.id !== oldRow.id)
-              );
-              return res;
-            } else {
-              const res = await updateOffice({
-                id: oldRow.id,
-                office: newRow,
-              }).unwrap();
-              return res;
+      {" "}
+      <Grid rowSpacing={3} columnSpacing={3} container>
+        <Grid item xs={12}>
+          <DataGrid
+            autoHeight
+            editMode="row"
+            columns={columns}
+            rows={rows}
+            rowCount={data.total_count}
+            rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
+            pageSize={rowCount}
+            onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
+            page={page}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+            }}
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+            onRowEditStart={handleRowEditStart}
+            onRowEditStop={handleRowEditStop}
+            components={{
+              Toolbar: EditToolbar,
+            }}
+            componentsProps={{
+              toolbar: { setRows, setRowModesModel },
+            }}
+            paginationMode="server"
+            loading={
+              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
             }
-          } catch (error) {
-            throw new Error(error.data.error);
-          }
-        }}
-        onProcessRowUpdateError={(error) => {
-          alert(error);
-        }}
-      />
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={async (newRow, oldRow) => {
+              try {
+                if (newRow.isNew) {
+                  const res = await createOffice({
+                    office: { ...newRow, id: Number(newRow.id) },
+                  }).unwrap();
+                  setRows((prevRows) =>
+                    prevRows.filter((row) => row.id !== oldRow.id)
+                  );
+                  return res;
+                } else {
+                  const res = await updateOffice({
+                    id: oldRow.id,
+                    office: newRow,
+                  }).unwrap();
+                  return res;
+                }
+              } catch (error) {
+                throw new Error(error.data.error);
+              }
+            }}
+            onProcessRowUpdateError={(error) => {
+              alert(error);
+            }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            size="small"
+            label="ID кассы"
+            type={"number"}
+          />
+        </Grid>
+        <Grid item xs={5}>
+          {isLoadingOffice && <CircularProgress />}
+          {!isLoadingOffice && error && (
+            <Typography>
+              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+            </Typography>
+          )}
+          {!isLoadingOffice && !error && office && searchQuery !== "" && (
+            <EntityInfo
+              items={columns
+                .filter((col) => col.type !== "actions")
+                .map((col) => {
+                  return { label: col.headerName, value: office[col.field] };
+                })}
+              onDelete={() =>
+                deleteOffice({ id: office.id })
+                  .unwrap()
+                  .catch(({ data: { error } }) => alert(error))
+              }
+            />
+          )}
+        </Grid>
+      </Grid>
     </>
   );
 };

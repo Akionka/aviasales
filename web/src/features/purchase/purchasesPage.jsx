@@ -3,10 +3,18 @@ import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditIcon from "@mui/icons-material/Edit";
-import { Button, Skeleton } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   useCreatePurchaseMutation,
   useDeletePurchaseByIDMutation,
+  useGetPurchaseByIDQuery,
   useGetPurchasesQuery,
   useUpdatePurchaseByIDMutation,
 } from "../../app/services/api";
@@ -17,16 +25,14 @@ import {
   GridRowModes,
   GridToolbarContainer,
 } from "@mui/x-data-grid";
+import { EntityInfo } from "../../components/EntityInfo";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
-    setRows((oldRows) => [
-      ...oldRows,
-      { id: '', model_code: '', isNew: true },
-    ]);
+    setRows((oldRows) => [...oldRows, { id: "", model_code: "", isNew: true }]);
     setRowModesModel((oldModel) => ({
       ...oldModel,
-      '': { mode: GridRowModes.Edit, fieldToFocus: "id" },
+      "": { mode: GridRowModes.Edit, fieldToFocus: "id" },
     }));
   };
 
@@ -46,10 +52,18 @@ export const PurchasesPage = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [rows, setRows] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isLoading } = useGetPurchasesQuery({
     page: page + 1,
     count: rowCount,
   });
+
+  const {
+    data: purchase,
+    isLoading: isLoadingPurchase,
+    error,
+  } = useGetPurchaseByIDQuery({ id: searchQuery });
 
   useEffect(() => {
     setRows((prevRows) => {
@@ -61,9 +75,9 @@ export const PurchasesPage = () => {
     });
   }, [data?.items]);
 
-  const [updatePurchase, { isLoadingUpdate }] =    useUpdatePurchaseByIDMutation();
-  const [deletePurchase, { isLoadingDelete }] =    useDeletePurchaseByIDMutation();
-  const [createPurchase, { isLoadingCreate }] =    useCreatePurchaseMutation();
+  const [updatePurchase, { isLoadingUpdate }] = useUpdatePurchaseByIDMutation();
+  const [deletePurchase, { isLoadingDelete }] = useDeletePurchaseByIDMutation();
+  const [createPurchase, { isLoadingCreate }] = useCreatePurchaseMutation();
 
   const handleRowEditStart = (params, event) => {
     event.defaultMuiPrevented = true;
@@ -105,20 +119,24 @@ export const PurchasesPage = () => {
     }
   };
 
+  const handleSearchQueryChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   const columns = [
     {
       field: "id",
       headerName: "ID покупки",
       width: 150,
       editable: false,
-      type: 'number'
+      type: "number",
     },
     {
       field: "date",
       headerName: "Время покупки",
       width: 200,
       editable: true,
-      type: 'dateTime',
+      type: "dateTime",
       valueFormatter: ({ value }) => value && new Date(value).toLocaleString(),
     },
     {
@@ -138,14 +156,14 @@ export const PurchasesPage = () => {
       headerName: "Итоговая цена",
       width: 175,
       editable: true,
-      type: "number"
+      type: "number",
     },
     {
-      field: 'booking_office_id',
-      headerName: 'ID кассы',
+      field: "booking_office_id",
+      headerName: "ID кассы",
       width: 100,
       editable: true,
-      type: "number"
+      type: "number",
     },
     {
       field: "actions",
@@ -194,59 +212,115 @@ export const PurchasesPage = () => {
 
   return (
     <>
-      <DataGrid
-        autoHeight
-        editMode="row"
-        columns={columns}
-        rows={rows}
-        rowCount={data.total_count}
-        rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
-        pageSize={rowCount}
-        onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
-        page={page}
-        onPageChange={(newPage) => {
-          setPage(newPage);
-        }}
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        components={{
-          Toolbar: EditToolbar,
-        }}
-        componentsProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-        paginationMode="server"
-        loading={
-          isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
-        }
-        experimentalFeatures={{ newEditingApi: true }}
-        processRowUpdate={async (newRow, oldRow) => {
-          try {
-            if (newRow.isNew) {
-              const res = await createPurchase({
-                purchase: newRow,
-              }).unwrap();
-              setRows((prevRows) =>
-                prevRows.filter((row) => row.id !== oldRow.id)
-              );
-              return res;
-            } else {
-              const res = await updatePurchase({
-                id: oldRow.id,
-                purchase: newRow,
-              }).unwrap();
-              return res;
+      {" "}
+      <Grid rowSpacing={3} columnSpacing={3} container>
+        <Grid item xs={12}>
+          <DataGrid
+            autoHeight
+            editMode="row"
+            columns={columns}
+            rows={rows}
+            rowCount={data.total_count}
+            rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
+            pageSize={rowCount}
+            onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
+            page={page}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+            }}
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+            onRowEditStart={handleRowEditStart}
+            onRowEditStop={handleRowEditStop}
+            components={{
+              Toolbar: EditToolbar,
+            }}
+            componentsProps={{
+              toolbar: { setRows, setRowModesModel },
+            }}
+            paginationMode="server"
+            loading={
+              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
             }
-          } catch (error) {
-            throw new Error(error.data.error);
-          }
-        }}
-        onProcessRowUpdateError={(error) => {
-          alert(error);
-        }}
-      />
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={async (newRow, oldRow) => {
+              try {
+                if (newRow.isNew) {
+                  const res = await createPurchase({
+                    purchase: newRow,
+                  }).unwrap();
+                  setRows((prevRows) =>
+                    prevRows.filter((row) => row.id !== oldRow.id)
+                  );
+                  return res;
+                } else {
+                  const res = await updatePurchase({
+                    id: oldRow.id,
+                    purchase: newRow,
+                  }).unwrap();
+                  return res;
+                }
+              } catch (error) {
+                throw new Error(error.data.error);
+              }
+            }}
+            onProcessRowUpdateError={(error) => {
+              alert(error);
+            }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            size="small"
+            label="ID покупки"
+            type={"number"}
+          />
+        </Grid>
+        <Grid item xs={5}>
+          {isLoadingPurchase && <CircularProgress />}
+          {!isLoadingPurchase && error && (
+            <Typography>
+              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+            </Typography>
+          )}
+          {!isLoadingPurchase && !error && purchase && searchQuery !== "" && (
+            <EntityInfo
+              items={columns
+                .filter((col) => col.type !== "actions")
+                .map((col) => {
+                  console.log(purchase[col.field]);
+                  return {
+                    label: col.headerName,
+                    value: (() => {
+                      switch (col.type) {
+                        case "boolean":
+                          return purchase[col.field] ? "Да" : "Нет";
+                        case "date":
+                          return purchase[col.field]
+                            ? new Date(purchase[col.field]).toLocaleDateString()
+                            : "";
+                        case "dateTime":
+                          return purchase[col.field]
+                            ? new Date(purchase[col.field]).toLocaleString()
+                            : "";
+                        default:
+                          return purchase[col.field];
+                      }
+                    })(),
+                  };
+                })}
+              onDelete={() =>
+                deletePurchase({ id: purchase.id })
+                  .unwrap()
+                  .catch(({ data: { error } }) => alert(error))
+              }
+            />
+          )}
+        </Grid>
+      </Grid>
     </>
   );
 };

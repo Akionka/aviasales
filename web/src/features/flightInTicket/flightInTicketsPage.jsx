@@ -3,10 +3,18 @@ import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
 import DeleteIcon from "@mui/icons-material/DeleteForeverOutlined";
 import EditIcon from "@mui/icons-material/Edit";
-import { Button, Skeleton } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  Grid,
+  Skeleton,
+  TextField,
+  Typography,
+} from "@mui/material";
 import {
   useCreateFlightInTicketMutation,
   useDeleteFlightInTicketByIDMutation,
+  useGetFlightInTicketByIDQuery,
   useGetFlightInTicketsQuery,
   useUpdateFlightInTicketByIDMutation,
 } from "../../app/services/api";
@@ -17,6 +25,7 @@ import {
   GridRowModes,
   GridToolbarContainer,
 } from "@mui/x-data-grid";
+import { EntityInfo } from "../../components/EntityInfo";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -46,10 +55,18 @@ export const FlightInTicketsPage = () => {
   const [rowModesModel, setRowModesModel] = useState({});
   const [rows, setRows] = useState([]);
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const { data, isLoading } = useGetFlightInTicketsQuery({
     page: page + 1,
     count: rowCount,
   });
+
+  const {
+    data: flightInTicket,
+    isLoading: isLoadingFlightInTicket,
+    error,
+  } = useGetFlightInTicketByIDQuery({ id: searchQuery });
 
   useEffect(() => {
     setRows((prevRows) => {
@@ -106,6 +123,10 @@ export const FlightInTicketsPage = () => {
     if (editedRow.isNew) {
       setRows(rows.filter((r) => r.id !== row.id));
     }
+  };
+
+  const handleSearchQueryChange = (e) => {
+    setSearchQuery(e.target.value);
   };
 
   const columns = [
@@ -184,59 +205,102 @@ export const FlightInTicketsPage = () => {
 
   return (
     <>
-      <DataGrid
-        autoHeight
-        editMode="row"
-        columns={columns}
-        rows={rows}
-        rowCount={data.total_count}
-        rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
-        pageSize={rowCount}
-        onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
-        page={page}
-        onPageChange={(newPage) => {
-          setPage(newPage);
-        }}
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-        onRowEditStart={handleRowEditStart}
-        onRowEditStop={handleRowEditStop}
-        components={{
-          Toolbar: EditToolbar,
-        }}
-        componentsProps={{
-          toolbar: { setRows, setRowModesModel },
-        }}
-        paginationMode="server"
-        loading={
-          isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
-        }
-        experimentalFeatures={{ newEditingApi: true }}
-        processRowUpdate={async (newRow, oldRow) => {
-          try {
-            if (newRow.isNew) {
-              const res = await createFlightInTicket({
-                flight_in_ticket: newRow,
-              }).unwrap();
-              setRows((prevRows) =>
-                prevRows.filter((row) => row.id !== oldRow.id)
-              );
-              return res;
-            } else {
-              const res = await updateFlightInTicket({
-                id: oldRow.id,
-                flight_in_ticket: newRow,
-              }).unwrap();
-              return res;
+      {" "}
+      <Grid rowSpacing={3} columnSpacing={3} container>
+        <Grid item xs={12}>
+          <DataGrid
+            autoHeight
+            editMode="row"
+            columns={columns}
+            rows={rows}
+            rowCount={data.total_count}
+            rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
+            pageSize={rowCount}
+            onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
+            page={page}
+            onPageChange={(newPage) => {
+              setPage(newPage);
+            }}
+            rowModesModel={rowModesModel}
+            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+            onRowEditStart={handleRowEditStart}
+            onRowEditStop={handleRowEditStop}
+            components={{
+              Toolbar: EditToolbar,
+            }}
+            componentsProps={{
+              toolbar: { setRows, setRowModesModel },
+            }}
+            paginationMode="server"
+            loading={
+              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
             }
-          } catch (error) {
-            throw new Error(error.data.error);
-          }
-        }}
-        onProcessRowUpdateError={(error) => {
-          alert(error);
-        }}
-      />
+            experimentalFeatures={{ newEditingApi: true }}
+            processRowUpdate={async (newRow, oldRow) => {
+              try {
+                if (newRow.isNew) {
+                  const res = await createFlightInTicket({
+                    flight_in_ticket: newRow,
+                  }).unwrap();
+                  setRows((prevRows) =>
+                    prevRows.filter((row) => row.id !== oldRow.id)
+                  );
+                  return res;
+                } else {
+                  const res = await updateFlightInTicket({
+                    id: oldRow.id,
+                    flight_in_ticket: newRow,
+                  }).unwrap();
+                  return res;
+                }
+              } catch (error) {
+                throw new Error(error.data.error);
+              }
+            }}
+            onProcessRowUpdateError={(error) => {
+              alert(error);
+            }}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <TextField
+            variant="outlined"
+            value={searchQuery}
+            onChange={handleSearchQueryChange}
+            size="small"
+            label="ID полёта в билете"
+            type={"number"}
+          />
+        </Grid>
+        <Grid item xs={5}>
+          {isLoadingFlightInTicket && <CircularProgress />}
+          {!isLoadingFlightInTicket && error && (
+            <Typography>
+              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+            </Typography>
+          )}
+          {!isLoadingFlightInTicket &&
+            !error &&
+            flightInTicket &&
+            searchQuery !== "" && (
+              <EntityInfo
+                items={columns
+                  .filter((col) => col.type !== "actions")
+                  .map((col) => {
+                    return {
+                      label: col.headerName,
+                      value: flightInTicket[col.field],
+                    };
+                  })}
+                onDelete={() =>
+                  deleteFlightInTicket({ id: flightInTicket.id })
+                    .unwrap()
+                    .catch(({ data: { error } }) => alert(error))
+                }
+              />
+            )}
+        </Grid>
+      </Grid>
     </>
   );
 };
