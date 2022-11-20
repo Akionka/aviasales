@@ -527,6 +527,8 @@ export const api = createApi({
 
     getPurchaseByID: builder.query({
       query: ({ id }) => `purchases/${id}`,
+      providesTags: (result, error, params) =>
+        result ? [{ type: "Purchase", id: result.id }] : [],
     }),
     deletePurchaseByID: builder.mutation({
       query: ({ id }) => ({
@@ -552,6 +554,8 @@ export const api = createApi({
 
     getSeatByID: builder.query({
       query: ({ id }) => `seats/${id}`,
+      providesTags: (result, error, params) =>
+        result ? [{ type: "Seat", id: result.id }] : [],
     }),
     deleteSeatByID: builder.mutation({
       query: ({ id }) => ({
@@ -577,6 +581,8 @@ export const api = createApi({
 
     getTicketByID: builder.query({
       query: ({ id }) => `tickets/${id}`,
+      providesTags: (result, error, params) =>
+        result ? [{ type: "Ticket", id: result.id }] : [],
     }),
     deleteTicketByID: builder.mutation({
       query: ({ id }) => ({
