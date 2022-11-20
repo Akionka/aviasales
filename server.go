@@ -525,6 +525,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 			s.respond(w, r, http.StatusOK, &Cashier{
+				ID:         c.ID,
 				Login:      c.Login,
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
@@ -564,6 +565,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 			}
 
 			if err := s.store.Cashier().Update(id, &store.CashierModel{
+				ID:         c.ID,
 				Login:      c.Login,
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
@@ -792,6 +794,7 @@ func (s *server) handleFlightGetDeleteUpdate() http.HandlerFunc {
 				return
 			}
 			s.respond(w, r, http.StatusOK, &Flight{
+				ID:        f.ID,
 				DepDate:   f.DepDate,
 				LineCode:  f.LineCode,
 				IsHot:     f.IsHot,

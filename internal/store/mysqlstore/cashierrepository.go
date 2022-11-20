@@ -1,6 +1,8 @@
 package mysqlstore
 
-import "github.com/akionka/aviasales/internal/store"
+import (
+	"github.com/akionka/aviasales/internal/store"
+)
 
 type CashierRepository struct {
 	store *Store
