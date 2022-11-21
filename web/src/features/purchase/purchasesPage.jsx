@@ -291,7 +291,6 @@ export const PurchasesPage = () => {
               items={columns
                 .filter((col) => col.type !== "actions")
                 .map((col) => {
-                  console.log(purchase[col.field]);
                   return {
                     label: col.headerName,
                     value: (() => {

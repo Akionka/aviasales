@@ -306,7 +306,6 @@ export const FlightsPage = () => {
               items={columns
                 .filter((col) => col.type !== "actions")
                 .map((col) => {
-                  console.log(flight[col.field]);
                   return {
                     label: col.headerName,
                     value: (() => {

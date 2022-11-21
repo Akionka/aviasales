@@ -266,7 +266,7 @@ export const SeatsPage = () => {
             value={searchQuery}
             onChange={handleSearchQueryChange}
             size="small"
-            label="ID покупки"
+            label="ID места"
             type={"number"}
           />
         </Grid>
