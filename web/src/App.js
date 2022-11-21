@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Routes, Route, Navigate } from "react-router-dom";
-import { useWhoamiQuery } from "./app/services/api";
 import { setToken } from "./features/auth/authSlice";
 
 import { Login } from "./features/auth/Login";
@@ -18,20 +17,17 @@ import { LinersPage } from "./features/liner/linersPage";
 import { PurchasesPage } from "./features/purchase/purchasesPage";
 import { SeatsPage } from "./features/seat/seatsPage";
 import { TicketsPage } from "./features/ticket/ticketsPage";
+import { ReportPage } from "./features/report/reportPage";
 
 function App() {
   const dispatch = useDispatch();
-  const { isLoading, refetch } = useWhoamiQuery();
 
   useEffect(() => {
     const token = sessionStorage.getItem("auth_token");
     if (token) {
       dispatch(setToken(token));
-      refetch();
     }
-  }, [dispatch, refetch]);
-
-  if (isLoading) return;
+  }, [dispatch]);
 
   return (
     <Routes>
@@ -57,6 +53,14 @@ function App() {
         <Route path="ticket" element={<TicketsPage />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Route>
+      <Route
+        path="ticket/:ticketId/report/"
+        element={
+          <ProtectedRoute>
+            <ReportPage />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }

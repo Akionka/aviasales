@@ -1,7 +1,7 @@
 import { Controller, useForm } from "react-hook-form";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
-import { useLoginMutation } from "../../app/services/api";
+import { useLoginMutation, useWhoamiQuery } from "../../app/services/api";
 import { useAuth } from "../../hooks/useAuth";
 import { setCredentials } from "./authSlice";
 
@@ -13,13 +13,16 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Alert from "@mui/material/Alert";
+import { useEffect } from "react";
 
 export const Login = () => {
   const dispatch = useDispatch();
   const natigate = useNavigate();
   const [login, { isLoading }] = useLoginMutation();
   const auth = useAuth();
+  const token = useSelector((state) => state.auth.token);
   const location = useLocation();
+  const { refetch } = useWhoamiQuery();
 
   const fromPage = location.state?.from?.pathname || "/";
 
@@ -29,6 +32,14 @@ export const Login = () => {
     setError,
     control,
   } = useForm();
+
+  useEffect(() => {
+    if (token) {
+      refetch()
+        .unwrap()
+        .then((res) => dispatch(setCredentials({ user: res, token: token })));
+    }
+  }, [dispatch, refetch, token]);
 
   const onSubmit = async (data) => {
     try {
@@ -63,7 +74,7 @@ export const Login = () => {
   };
 
   if (auth.user) {
-    return <Navigate to={fromPage} />;
+    return <Navigate to={fromPage} replace={true} />;
   }
 
   return (
@@ -87,7 +98,7 @@ export const Login = () => {
             name="login"
             control={control}
             defaultValue={""}
-            render={({ field: { onChange, onBlur, value, name, ref } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextField
                 margin="normal"
                 required
@@ -109,7 +120,7 @@ export const Login = () => {
             name="password"
             control={control}
             defaultValue={""}
-            render={({ field: { onChange, onBlur, value, name, ref } }) => (
+            render={({ field: { onChange, onBlur, value, ref } }) => (
               <TextField
                 margin="normal"
                 required
