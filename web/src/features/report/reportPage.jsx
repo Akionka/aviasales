@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useGetReportByTicketIDQuery } from "../../app/services/api";
 import { formatPhoneNumberIntl } from "react-phone-number-input";
+import {localDatetimeToUTC} from "../../utils/dateConverter"
 
 import styles from "./reportPage.module.css";
 
@@ -46,19 +47,6 @@ const FlightItem = ({
   );
 };
 
-const localDatetimeToUTC = (dt) =>
-  new Date(
-    Date.UTC(
-      dt.getUTCFullYear(),
-      dt.getUTCMonth(),
-      dt.getUTCDate(),
-      dt.getUTCHours(),
-      dt.getUTCMinutes(),
-      dt.getUTCSeconds(),
-      dt.getUTCMilliseconds()
-    ) +
-      new Date().getTimezoneOffset() * 60000
-  );
 
 export const ReportPage = () => {
   const { ticketId } = useParams();
@@ -75,6 +63,7 @@ export const ReportPage = () => {
         Ошибка! {error.status} {error.data.error}
       </div>
     );
+    console.log(data.total_time)
   return (
     <div className={styles.ticket}>
       <div className={styles.ticket__page}>
@@ -139,18 +128,13 @@ export const ReportPage = () => {
           <div className={styles.ticket__grid_item} />
           <GridItem
             label="Общее время в пути"
-            value={new Date(
-              0,
-              0,
-              0,
-              0,
-              0,
-              data.total_time,
-              0
-            ).toLocaleTimeString([], {
+            value={localDatetimeToUTC(new Date(
+              data.total_time*1000,
+            )).toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
-            })}
+            })
+          }
           />
           <GridItem label="Место продажи" value={data.booking_office.address} />
           <GridItem

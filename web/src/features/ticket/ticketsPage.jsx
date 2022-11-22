@@ -27,6 +27,9 @@ import {
 } from "@mui/x-data-grid";
 import { EntityInfo } from "../../components/EntityInfo";
 import { useNavigate } from "react-router-dom";
+import { formatPassportNumber } from "../../utils/formatters/passport";
+import { localDatetimeToUTC } from "../../utils/dateConverter";
+import { formatGender } from "../../utils/formatters/gender";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -154,15 +157,14 @@ export const TicketsPage = () => {
       editable: true,
       type: "date",
       valueFormatter: ({ value }) =>
-        value && new Date(value).toLocaleDateString(),
+        value && localDatetimeToUTC(new Date(value)).toLocaleDateString(),
     },
     {
       field: "passenger_passport_number",
       headerName: "Номер паспорта пассажира",
       width: 210,
       editable: true,
-      valueFormatter: ({ value }) =>
-        value && `${value.slice(0, 4)} ${value.slice(4, 10)}`,
+      valueFormatter: ({ value }) => formatPassportNumber(value),
     },
     {
       field: "passenger_sex",
@@ -174,8 +176,7 @@ export const TicketsPage = () => {
         { value: 1, label: "Мужской" },
         { value: 2, label: "Женский" },
       ],
-      valueFormatter: ({ value }) =>
-        value && value === 1 ? "Мужской" : "Женский",
+      valueFormatter: ({ value }) => formatGender(value),
     },
     {
       field: "purchase_id",
@@ -331,7 +332,22 @@ export const TicketsPage = () => {
               items={columns
                 .filter((col) => col.type !== "actions")
                 .map((col) => {
-                  return { label: col.headerName, value: ticket[col.field] };
+                  return { label: col.headerName, value: (() => {
+                    switch (col.field) {
+                      // case "passenger_birth_date":
+                        // return ticket[col.field] ? "Да" : "Нет";
+                      case "passenger_birth_date":
+                        return ticket[col.field]
+                          ? new Date(ticket[col.field]).toLocaleDateString()
+                          : "";
+                          case "passenger_sex":
+                          return formatGender(ticket[col.field])
+                          case "passenger_passport_number":
+                          return formatPassportNumber(ticket[col.field])
+                      default:
+                        return ticket[col.field];
+                    }
+                  })() };
                 })}
               onDelete={() =>
                 deleteTicket({ id: ticket.id })
