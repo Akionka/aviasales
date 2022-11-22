@@ -104,13 +104,15 @@ type TicketModel struct {
 }
 
 type TicketReportFlightModel struct {
-	DepCity    string     `db:"dep_city" json:"dep_city"`
-	ArrCity    string     `db:"arr_city" json:"arr_city"`
-	DepTime    *time.Time `db:"dep_time_local" json:"dep_time_local"`
-	ArrTime    *time.Time `db:"arr_time_local" json:"arr_time_local"`
-	LineCode   string     `db:"line_code" json:"line_code"`
-	SeatNumber string     `db:"number" json:"number"`
-	SeatClass  string     `db:"class" json:"class"`
+	DepCity      string     `db:"dep_city" json:"dep_city"`
+	ArrCity      string     `db:"arr_city" json:"arr_city"`
+	DepTimeLocal *time.Time `db:"dep_time_local" json:"dep_time_local"`
+	DepTimeGMT   *time.Time `db:"dep_time_gmt" json:"dep_time_gmt"`
+	ArrTimeLocal *time.Time `db:"arr_time_local" json:"arr_time_local"`
+	ArrTimeGMT   *time.Time `db:"arr_time_gmt" json:"arr_time_gmt"`
+	LineCode     string     `db:"line_code" json:"line_code"`
+	SeatNumber   string     `db:"number" json:"number"`
+	SeatClass    string     `db:"class" json:"class"`
 }
 
 // ComparePassword returns true if the password matches and false otherwise
