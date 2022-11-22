@@ -605,6 +605,11 @@ export const api = createApi({
         { type: "Ticket", id: "PARTIAL-LIST" },
       ],
     }),
+
+    getReportByTicketID: builder.query({
+      query: ({ id }) => `tickets/${id}/report`,
+      providesTags: (result, error, { id }) => [{ type: "Report", id: id }],
+    }),
   }),
 });
 
@@ -668,4 +673,5 @@ export const {
   useGetTicketByIDQuery,
   useDeleteTicketByIDMutation,
   useUpdateTicketByIDMutation,
+  useGetReportByTicketIDQuery,
 } = api;

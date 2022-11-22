@@ -146,6 +146,7 @@ func (s *server) configureRouter() {
 	adminOnlyCreateUpdateDelete.HandleFunc("/purchases/{id:[0-9]+}", s.handlePurchaseGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	adminOnlyCreateUpdateDelete.HandleFunc("/seats/{id:[0-9]+}", s.handleSeatGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
 	adminOnlyCreateUpdateDelete.HandleFunc("/tickets/{id:[0-9]+}", s.handleTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyCreateUpdateDelete.HandleFunc("/tickets/{id:[0-9]+}/report", s.handleTicketReportGet()).Methods(http.MethodGet, http.MethodOptions)
 }
 
 func (s *server) authenticateUser(next http.Handler) http.Handler {
@@ -1762,6 +1763,68 @@ func (s *server) handleTicketsCreate() http.HandlerFunc {
 			return
 		}
 		s.respond(w, r, http.StatusOK, t)
+	}
+}
+
+func (s *server) handleTicketReportGet() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		id, err := strconv.Atoi(vars["id"])
+		if err != nil {
+			s.error(w, r, http.StatusBadRequest, err)
+			return
+		}
+
+		t, err := s.store.Ticket().Find(id)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				s.error(w, r, http.StatusBadRequest, errRequestedItemDoesNotExist)
+				return
+			}
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		flights, office, cashier, purchase, totalTime, err := s.store.Ticket().Report(id)
+		if err != nil {
+			s.error(w, r, http.StatusInternalServerError, err)
+			return
+		}
+
+		report := &TicketReport{
+			Ticket: Ticket{
+				ID:                      t.ID,
+				PassengerLastName:       t.PassengerLastName,
+				PassengerGivenName:      t.PassengerGivenName,
+				PassengerBirthDate:      t.PassengerBirthDate,
+				PassengerPassportNumber: "******" + t.PassengerPassportNumber[6:10],
+				PassengerSex:            t.PassengerSex,
+			},
+			BookingOffice: BookingOffice{
+				ID:          office.ID,
+				Address:     office.Address,
+				PhoneNumber: office.PhoneNumber,
+			},
+			Cashier: Cashier{
+				ID:         cashier.ID,
+				FirstName:  cashier.FirstName,
+				LastName:   cashier.LastName,
+				MiddleName: cashier.MiddleName,
+				Login:      cashier.Login,
+			},
+			Purchase: Purchase{
+				ID:              purchase.ID,
+				Date:            purchase.Date,
+				TotalPrice:      purchase.TotalPrice,
+				ContactPhone:    purchase.ContactPhone,
+				ContactEmail:    purchase.ContactEmail,
+				BookingOfficeID: purchase.BookingOfficeID,
+				CashierID:       purchase.CashierID,
+			},
+			Flights:   flights,
+			TotalTime: int(totalTime.Seconds()),
+		}
+		s.respond(w, r, http.StatusOK, report)
 	}
 }
 

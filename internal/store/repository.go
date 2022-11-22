@@ -1,5 +1,7 @@
 package store
 
+import "time"
+
 type AirportRepository interface {
 	Create(*AirportModel) error
 	Find(code string) (*AirportModel, error)
@@ -93,6 +95,7 @@ type SeatRepository interface {
 }
 
 type TicketRepository interface {
+	Report(id int) ([]*TicketReportFlightModel, *BookingOfficeModel, *CashierModel, *PurchaseModel, time.Duration, error)
 	Create(*TicketModel) error
 	Find(id int) (*TicketModel, error)
 	FindAll(row_count, offset int) (*[]TicketModel, error)

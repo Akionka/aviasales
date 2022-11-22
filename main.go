@@ -16,5 +16,6 @@ func main() {
 
 	store := mysqlstore.New(db)
 	server := newServer(store)
+	log.Println("Starting server on port :8080...")
 	log.Fatal(server.start())
 }

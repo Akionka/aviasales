@@ -1,0 +1,38 @@
+*,
+*::after,
+*::before {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ticket {
+  display: grid;
+  place-items: center;
+}
+.ticket__page {
+  width: 210mm;
+  height: 297mm;
+  font-size: 16pt;
+  font-family: "JetBrains Mono";
+  line-height: 1.5;
+}
+.ticket__number {
+  text-align: center;
+  margin-bottom: 16pt;
+  font-size: 20pt;
+  font-weight: 1000;
+}
+.ticket__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  row-gap: 0.5cm;
+}
+.ticket__itemvalue {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+.ticket__subgrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}

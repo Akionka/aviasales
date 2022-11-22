@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/akionka/aviasales/internal/store"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/go-ozzo/ozzo-validation/v4/is"
 )
@@ -271,4 +272,13 @@ type SeatList struct {
 type TicketList struct {
 	Items      []Ticket `json:"items"`
 	TotalCount int      `json:"total_count"`
+}
+
+type TicketReport struct {
+	Ticket        Ticket                           `json:"ticket"`
+	Flights       []*store.TicketReportFlightModel `json:"flights"`
+	TotalTime     int                              `json:"total_time"`
+	BookingOffice BookingOffice                    `json:"booking_office"`
+	Cashier       Cashier                          `json:"cashier"`
+	Purchase      Purchase                         `json:"purchase"`
 }

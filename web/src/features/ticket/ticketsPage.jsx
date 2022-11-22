@@ -26,6 +26,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { EntityInfo } from "../../components/EntityInfo";
+import { useNavigate } from "react-router-dom";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -49,6 +50,7 @@ const EditToolbar = ({ setRows, setRowModesModel }) => {
 };
 
 export const TicketsPage = () => {
+  const navigate = useNavigate();
   const [page, setPage] = useState(0);
   const [rowCount, setRowCount] = useState(10);
 
@@ -297,7 +299,7 @@ export const TicketsPage = () => {
             }}
           />
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={2}>
           <TextField
             variant="outlined"
             value={searchQuery}
@@ -306,6 +308,16 @@ export const TicketsPage = () => {
             label="ID билета"
             type={"number"}
           />
+        </Grid>
+        <Grid item xs={10}>
+          {!isLoadingTicket && !error && ticket && searchQuery !== "" && (
+            <Button
+              variant="contained"
+              onClick={() => navigate(`/ticket/${searchQuery}/report`)}
+            >
+              Просмотреть отчёт
+            </Button>
+          )}
         </Grid>
         <Grid item xs={5}>
           {isLoadingTicket && <CircularProgress />}
