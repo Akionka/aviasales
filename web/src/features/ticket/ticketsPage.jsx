@@ -332,22 +332,25 @@ export const TicketsPage = () => {
               items={columns
                 .filter((col) => col.type !== "actions")
                 .map((col) => {
-                  return { label: col.headerName, value: (() => {
-                    switch (col.field) {
-                      // case "passenger_birth_date":
+                  return {
+                    label: col.headerName,
+                    value: (() => {
+                      switch (col.field) {
+                        // case "passenger_birth_date":
                         // return ticket[col.field] ? "Да" : "Нет";
-                      case "passenger_birth_date":
-                        return ticket[col.field]
-                          ? new Date(ticket[col.field]).toLocaleDateString()
-                          : "";
-                          case "passenger_sex":
-                          return formatGender(ticket[col.field])
-                          case "passenger_passport_number":
-                          return formatPassportNumber(ticket[col.field])
-                      default:
-                        return ticket[col.field];
-                    }
-                  })() };
+                        case "passenger_birth_date":
+                          return ticket[col.field]
+                            ? new Date(ticket[col.field]).toLocaleDateString()
+                            : "";
+                        case "passenger_sex":
+                          return formatGender(ticket[col.field]);
+                        case "passenger_passport_number":
+                          return formatPassportNumber(ticket[col.field]);
+                        default:
+                          return ticket[col.field];
+                      }
+                    })(),
+                  };
                 })}
               onDelete={() =>
                 deleteTicket({ id: ticket.id })
