@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\flightinticketrepository.go содержит код для работы с таблицей Полёт в билете
 package mysqlstore
 
 import (

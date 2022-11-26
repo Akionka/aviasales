@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\seatrepository.go содержит код для работы с таблицей Места
 package mysqlstore
 
 import "github.com/akionka/aviasales/internal/store"

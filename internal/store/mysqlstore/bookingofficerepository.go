@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\bookingofficerepository.go содержит код для работы с таблицей Касса
 package mysqlstore
 
 import (

@@ -1,3 +1,4 @@
+// Файл web\src\features\auth\authSlice.js содержит код, создающий срез для работы с аутентификацией
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {

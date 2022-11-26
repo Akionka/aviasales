@@ -1,3 +1,4 @@
+// Файл internal\store\repository.go содержит интерфейсы для работы с БД
 package store
 
 import "time"

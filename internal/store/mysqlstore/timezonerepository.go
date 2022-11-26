@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\timezonerepository.go содержит код для работы с таблицей Часовые пояса
 package mysqlstore
 
 type TimezoneRepository struct {

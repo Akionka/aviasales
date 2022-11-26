@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\linerepository.go содержит код для работы с таблицей Рейс
 package mysqlstore
 
 import "github.com/akionka/aviasales/internal/store"

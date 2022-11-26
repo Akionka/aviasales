@@ -1,3 +1,4 @@
+// Файл web\src\index.js содержит код приложения на верхнем уровне
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";

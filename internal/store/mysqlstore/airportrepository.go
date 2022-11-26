@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\airportrepository.go содержит код для работы с таблицей Аэропорты
 package mysqlstore
 
 import "github.com/akionka/aviasales/internal/store"

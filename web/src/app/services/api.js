@@ -1,3 +1,4 @@
+// Файл web\src\app\services\api.js содержит код для взаимодействия с сервером
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export const api = createApi({

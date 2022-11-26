@@ -1,3 +1,4 @@
+// Файл web\src\features\cashier\cashiersPage.jsx содержит код страницы с формой для таблицы "Кассир"
 import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -191,19 +192,19 @@ export const CashiersPage = () => {
     {
       field: "last_name",
       headerName: "Фамилия",
-      width: 250,
+      width: 200,
       editable: true,
     },
     {
       field: "first_name",
       headerName: "Имя",
-      width: 250,
+      width: 200,
       editable: true,
     },
     {
       field: "middle_name",
       headerName: "Отчество",
-      width: 250,
+      width: 200,
       editable: true,
     },
     {
@@ -265,6 +266,7 @@ export const CashiersPage = () => {
       <Grid rowSpacing={3} columnSpacing={3} container>
         <Grid item xs={12}>
           <DataGrid
+            getRowHeight={() => "auto"}
             autoHeight
             editMode="row"
             columns={columns}

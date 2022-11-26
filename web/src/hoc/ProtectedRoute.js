@@ -1,3 +1,4 @@
+// Файл web\src\hoc\ProtectedRoute.js содержит код для компоненты высшего порядка, которая позволяет запретить неавторизованный доступ
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 

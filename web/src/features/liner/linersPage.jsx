@@ -1,3 +1,4 @@
+// Файл web\src\features\line\linersPage.jsx содержит код страницы с формой для таблицы "Самолёт"
 import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -190,6 +191,7 @@ export const LinersPage = () => {
       <Grid rowSpacing={3} columnSpacing={3} container>
         <Grid item xs={12}>
           <DataGrid
+            getRowHeight={() => "auto"}
             autoHeight
             editMode="row"
             getRowId={(row) => row.iata_code}

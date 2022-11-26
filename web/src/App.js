@@ -1,3 +1,4 @@
+// Файл web\src\App.js содержит код приложения на верхнем уровне
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Routes, Route, Navigate } from "react-router-dom";

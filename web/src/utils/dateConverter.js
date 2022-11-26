@@ -1,3 +1,4 @@
+// Файл web\src\utils\dateConverter.js содержит функцию для перевода локального времени в UTC
 export const localDatetimeToUTC = (dt) =>
   new Date(
     Date.UTC(

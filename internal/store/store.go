@@ -1,3 +1,4 @@
+// Файл internal\store\store.go содержит описания таблиц на уровне БД
 package store
 
 import (

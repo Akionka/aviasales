@@ -1,3 +1,4 @@
+/* Файл web\src\features\report\reportPage.module.css содержит стили для страницы отчёта */
 *,
 *::after,
 *::before {
@@ -27,6 +28,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   row-gap: 0.5cm;
+  column-gap: 0.25cm;
 }
 .ticket__itemvalue {
   font-weight: bold;

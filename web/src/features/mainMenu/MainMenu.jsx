@@ -1,3 +1,4 @@
+// Файл web\src\features\mainMenu\MainMenu.jsx содержит код компонента "Главное меню"
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
@@ -82,6 +83,14 @@ export const MainMenu = () => {
             ))}
           </List>
           <Divider />
+          <ListItem key={"Генерация билета"} disablePadding>
+            <ListItemButton>
+              <ListItemText
+                primary={"Генерация билета"}
+                onClick={() => navigate("/ticket/1/report")}
+              />
+            </ListItemButton>
+          </ListItem>
         </Box>
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>

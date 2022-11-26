@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\store.go содержит код для работы с СУБД MySQL
 package mysqlstore
 
 import (

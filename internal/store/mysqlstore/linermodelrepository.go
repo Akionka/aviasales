@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\linermodelrepository.go содержит код  для работы с таблицей Модель самолета
 package mysqlstore
 
 import "github.com/akionka/aviasales/internal/store"

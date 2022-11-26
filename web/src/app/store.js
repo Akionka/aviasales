@@ -1,3 +1,4 @@
+// Файл web\src\app\store.js содержит код для настройки стора (хранилища) Redux
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "../features/auth/authSlice";
 import { api } from "./services/api";

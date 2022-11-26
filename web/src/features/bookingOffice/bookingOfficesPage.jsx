@@ -1,3 +1,4 @@
+// Файл web\src\features\bookingOffice\bookingOfficesPage.jsx содержит код страницы с формой для таблицы "Касса"
 import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -26,6 +27,7 @@ import {
   useUpdateOfficeByIDMutation,
 } from "../../app/services/api";
 import { EntityInfo } from "../../components/EntityInfo";
+import { formatPhoneNumberIntl } from "react-phone-number-input";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -138,8 +140,9 @@ export const BookingOfficesPage = () => {
     {
       field: "phone_number",
       headerName: "Номер телефона",
-      width: 500,
+      width: 150,
       editable: true,
+      valueFormatter: ({value}) => value && formatPhoneNumberIntl('+'+value)
     },
     {
       field: "actions",
@@ -192,6 +195,7 @@ export const BookingOfficesPage = () => {
       <Grid rowSpacing={3} columnSpacing={3} container>
         <Grid item xs={12}>
           <DataGrid
+            getRowHeight={() => "auto"}
             autoHeight
             editMode="row"
             columns={columns}

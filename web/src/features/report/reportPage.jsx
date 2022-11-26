@@ -1,3 +1,4 @@
+// Файл web\src\features\report\reportPage.jsx содержит код для страницы отчёта
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useGetReportByTicketIDQuery } from "../../app/services/api";

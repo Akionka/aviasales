@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\cashierrepository.go содержит код для работы с таблицей Кассир
 package mysqlstore
 
 import (

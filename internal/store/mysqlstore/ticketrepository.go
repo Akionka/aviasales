@@ -1,3 +1,4 @@
+// Файл internal\store\mysqlstore\ticketrepository.go содержит код для работы с таблицей Билеты
 package mysqlstore
 
 import (

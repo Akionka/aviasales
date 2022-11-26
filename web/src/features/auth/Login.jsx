@@ -1,3 +1,4 @@
+// Файл web\src\features\auth\Login.jsx содержит код формы авторизации
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";

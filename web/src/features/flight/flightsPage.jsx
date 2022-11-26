@@ -1,3 +1,4 @@
+// Файл web\src\features\flight\flightsPage.jsx содержит код страницы с формой для таблицы "Полёт"
 import SaveIcon from "@mui/icons-material/Save";
 import AddIcon from "@mui/icons-material/Add";
 import CancelIcon from "@mui/icons-material/Cancel";
@@ -26,6 +27,7 @@ import {
   GridToolbarContainer,
 } from "@mui/x-data-grid";
 import { EntityInfo } from "../../components/EntityInfo";
+import { localDatetimeToUTC } from "../../utils/dateConverter";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -148,7 +150,8 @@ export const FlightsPage = () => {
       editable: true,
       type: "date",
       valueGetter: ({ value }) => value && new Date(value),
-      valueFormatter: ({ value }) => value.toLocaleDateString(),
+      valueFormatter: ({ value }) =>
+        value && localDatetimeToUTC(new Date(value)).toLocaleDateString(),
     },
     {
       field: "is_hot",
@@ -220,6 +223,7 @@ export const FlightsPage = () => {
       <Grid rowSpacing={3} columnSpacing={3} container>
         <Grid item xs={12}>
           <DataGrid
+            getRowHeight={() => "auto"}
             autoHeight
             editMode="row"
             columns={columns}
