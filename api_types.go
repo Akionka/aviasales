@@ -18,6 +18,7 @@ func checkAgeOver18(value interface{}) error {
 	today := time.Now().In(v.Location())
 	ty, tm, td := today.Date()
 	today = time.Date(ty, tm, td, 0, 0, 0, 0, time.UTC)
+
 	by, bm, bd := v.Date()
 	v = time.Date(by, bm, bd, 0, 0, 0, 0, time.UTC)
 	if today.Before(v) {
