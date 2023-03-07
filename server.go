@@ -65,6 +65,7 @@ func (s *server) configureRouter() {
 		handlers.AllowedMethods([]string{http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodPost, http.MethodOptions}),
 		handlers.AllowedOrigins([]string{"http://127.0.0.1:5500", "http://localhost:3000"})))
 
+	s.router.HandleFunc("/user", s.handleCashiersCreate()).Methods(http.MethodPost, http.MethodOptions)
 	s.router.HandleFunc("/session", s.handleSessionsCreate()).Methods(http.MethodPost, http.MethodOptions)
 
 	s.router.HandleFunc("/timezones", func(w http.ResponseWriter, r *http.Request) {
@@ -1562,6 +1563,7 @@ func (s *server) handleCashiersCreate() http.HandlerFunc {
 			s.error(w, r, http.StatusInternalServerError, err)
 			return
 		}
+		c.Password = ""
 		s.respond(w, r, http.StatusOK, c)
 	}
 }
@@ -1831,6 +1833,10 @@ func (s *server) handleTicketReportGet() http.HandlerFunc {
 }
 
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
+	if err, ok := err.(validation.Errors); ok {
+		s.respond(w, r, code, map[string]map[string]error{"error": err})
+		return
+	}
 	s.respond(w, r, code, map[string]string{"error": err.Error()})
 }
 

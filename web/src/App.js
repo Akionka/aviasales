@@ -19,6 +19,7 @@ import { PurchasesPage } from "./features/purchase/purchasesPage";
 import { SeatsPage } from "./features/seat/seatsPage";
 import { TicketsPage } from "./features/ticket/ticketsPage";
 import { ReportPage } from "./features/report/reportPage";
+import { Signup } from "./features/auth/Signup";
 
 function App() {
   const dispatch = useDispatch();
@@ -33,6 +34,7 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route
         path="/"
         element={

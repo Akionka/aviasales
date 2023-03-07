@@ -34,6 +34,17 @@ export const api = createApi({
         body: credentials,
       }),
     }),
+    signup: builder.mutation({
+      query: (credentials) => ({
+        url: "user",
+        method: "post",
+        body: credentials,
+      }),
+      invalidatesTags: (result, error, {id}) => [
+        {type: "Cashier", id: id},
+        {type: "Cashier", id: "PARTIAL-LIST"},
+      ]
+    }),
     whoami: builder.query({
       query: () => "whoami",
       providesTags: ["Session"],
@@ -615,6 +626,7 @@ export const api = createApi({
 });
 
 export const {
+  useSignupMutation,
   useLoginMutation,
   useWhoamiQuery,
   useGetTimezonesQuery,

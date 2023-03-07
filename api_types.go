@@ -4,7 +4,9 @@ package main
 import (
 	"errors"
 	"regexp"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/akionka/aviasales/internal/store"
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -78,8 +80,39 @@ func (c *Cashier) Validate() error {
 		validation.Field(&c.FirstName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.LastName, validation.Required, validation.Length(3, 64)),
 		validation.Field(&c.MiddleName, validation.Length(3, 64)),
-		validation.Field(&c.Password, validation.Length(6, 72)),
+		validation.Field(&c.Password, validation.Length(4, 16), validation.By(validPassword)),
 	)
+}
+
+func validPassword(value interface{}) error {
+	s, _ := value.(string)
+	if strings.ContainsAny(s, "*&{}|+") {
+		return errors.New("contains restricted characters")
+	}
+
+	var (
+		hasUppercaseLetter bool
+		hasDigits          bool
+	)
+
+	for _, c := range s {
+		if unicode.IsDigit(c) {
+			hasDigits = true
+		}
+		if unicode.IsUpper(c) {
+			hasUppercaseLetter = true
+		}
+	}
+
+	if !hasDigits {
+		return errors.New("must contain digits")
+	}
+
+	if !hasUppercaseLetter {
+		return errors.New("must cotain upper case letter")
+	}
+
+	return nil
 }
 
 type Flight struct {

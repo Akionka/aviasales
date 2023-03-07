@@ -10,11 +10,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
+import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Alert from "@mui/material/Alert";
 import { useEffect } from "react";
+import { Link } from "@mui/material";
 
 export const Login = () => {
   const dispatch = useDispatch();
@@ -79,7 +81,7 @@ export const Login = () => {
   }
 
   return (
-    <Container component="main" maxWidth="xs">
+    <Container component="main" maxWidth="sm">
       <Box
         sx={{
           marginTop: 8,
@@ -151,6 +153,13 @@ export const Login = () => {
           {errors.password && errors.login && (
             <Alert severity="error">{errors.password.message}</Alert>
           )}
+          <Grid container justify-content="flex-end">
+            <Grid item>
+              <Link variant="body2" href="/signup">
+                Регистрация
+              </Link>
+            </Grid>
+          </Grid>
         </Box>
       </Box>
     </Container>
