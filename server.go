@@ -83,6 +83,7 @@ func (s *server) configureRouter() {
 		c, ok := r.Context().Value(ctxKeyCashier).(*store.CashierModel)
 		if ok {
 			cashierResponse := &Cashier{
+				ID:         c.ID,
 				Login:      c.Login,
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
