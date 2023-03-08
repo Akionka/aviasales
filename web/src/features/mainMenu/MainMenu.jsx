@@ -3,7 +3,6 @@ import * as React from "react";
 import Box from "@mui/material/Box";
 import Drawer from "@mui/material/Drawer";
 import AppBar from "@mui/material/AppBar";
-import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import List from "@mui/material/List";
 import Typography from "@mui/material/Typography";
@@ -11,7 +10,11 @@ import Divider from "@mui/material/Divider";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
+import Button  from "@mui/material/Button";
 import { Outlet, useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
+import { useDispatch } from "react-redux";
+import { setCredentials } from "../auth/authSlice";
 
 const drawerWidth = 240;
 
@@ -31,18 +34,27 @@ const routes = [
 
 export const MainMenu = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch()
+  const auth = useAuth();
+
+  const handleLogout = (e) => {
+    dispatch(setCredentials({user: null, token: null}))
+  }
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
+    <Box sx={{ display: "flex", flexGrow: 1}}>
       <AppBar
         position="fixed"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
         <Toolbar>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{flexGrow: 1}}>
             Журавли
           </Typography>
+          <Box sx={{display: "flex", gap: 1}}>
+            <Typography variant="h6">Здравствуйте, {auth.user.last_name} {auth.user.first_name} {auth.user.middle_name}</Typography>
+            <Button color="inherit" onClick={handleLogout}>Выйти</Button>
+          </Box>
         </Toolbar>
       </AppBar>
       <Drawer
