@@ -33,7 +33,7 @@ const signupSchema = z.object({
   login: makeNameString('Логин', 3, 32).regex(/^[a-zA-Z0-9]+$/, `Поле Логин может содержать только латинские заглавные и строчные буквы и цифры`),
   password: makeNameString('Пароль', 4, 16)
   .regex(/\d/)
-  .refine(str => str.toLowerCase !== str, {message: "Пароль должен содержать хотя бы одну заглавную букву"})
+  .refine(str => str.toLowerCase() !== str, {message: "Пароль должен содержать хотя бы одну заглавную букву"})
   .refine(str => !str.includes('*&{}|+'), {message: "Пароль не должен содержать запрещённые символы: *?{}|+"})
 })
 
@@ -81,7 +81,6 @@ export const Signup = () => {
       dispatch(setCredentials(user));
       sessionStorage.setItem("auth_token", user.token);
     } catch (err) {
-      console.log(err)
       switch (err.status) {
         case 400:
           for (const key in err.data.error) {
@@ -107,10 +106,6 @@ export const Signup = () => {
   if (auth.user) {
     return <Navigate to={fromPage} replace={true} />;
   }
-
-  console.log(errors)
-  console.log(errors.first_name?.message)
-
   return (
     <Container component="main" maxWidth="sm">
       <Box
@@ -235,7 +230,7 @@ export const Signup = () => {
                     label="Пароль"
                     name="password"
                     autoComplete="password"
-                    // type="password"
+                    type="password"
                     error={errors.password}
                     value={value}
                     onChange={onChange}
@@ -258,8 +253,8 @@ export const Signup = () => {
           {errors.first_name?.message && <Alert severity="error">{errors.first_name.message}</Alert>}
           {errors.last_name?.message && <Alert severity="error">{errors.last_name.message}</Alert>}
           {errors.middle_name?.message && <Alert severity="error">{errors.middle_name.message}</Alert>}
-          {errors.login?.message && errors.login.type !== 'custom' && <Alert severity="error">{errors.login.message}</Alert>}
-          {errors.password?.message && errors.password.type !== 'custom' && <Alert severity="error">{errors.password.message}</Alert>}
+          {errors.login?.message && <Alert severity="error">{errors.login.message}</Alert>}
+          {errors.password?.message && <Alert severity="error">{errors.password.message}</Alert>}
           {errors.credentials?.message && <Alert severity="error">{errors.credentials.message}</Alert>}
           {errors.serverError?.message && <Alert severity="error">{errors.serverError.message}</Alert>}
           <Grid container justify-content="flex-end">
