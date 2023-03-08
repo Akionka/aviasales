@@ -63,7 +63,6 @@ export const ReportPage = () => {
         Ошибка! {error.status} {error.data.error}
       </div>
     );
-  console.log(data.total_time);
   return (
     <div className={styles.ticket}>
       <div className={styles.ticket__page}>

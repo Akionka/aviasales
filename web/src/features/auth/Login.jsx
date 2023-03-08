@@ -5,7 +5,6 @@ import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useLoginMutation, useWhoamiQuery } from "../../app/services/api";
 import { useAuth } from "../../hooks/useAuth";
 import { setCredentials } from "./authSlice";
-
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
@@ -55,22 +54,14 @@ export const Login = () => {
       sessionStorage.setItem("auth_token", user.token);
     } catch (err) {
       if (err.status === 401) {
-        setError("login", {
-          type: "custom",
-          message: "Неправильный логин или пароль!",
-        });
-        setError("password", {
+        setError("credentials", {
           type: "custom",
           message: "Неправильный логин или пароль!",
         });
       } else {
-        setError("login", {
+        setError("serverError", {
           type: "custom",
           message: "Случилось что-то непредвиденное!",
-        });
-        setError("password", {
-          type: "custom",
-          message: `Случилось что-то непредвиденное!`,
         });
       }
     }
@@ -111,7 +102,7 @@ export const Login = () => {
                 name="login"
                 autoComplete="login"
                 autoFocus
-                error={errors.password && errors.login}
+                error={errors.credentials}
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
@@ -133,7 +124,7 @@ export const Login = () => {
                 name="password"
                 autoComplete="password"
                 type="password"
-                error={errors.password && errors.login}
+                error={errors.credentials}
                 value={value}
                 onChange={onChange}
                 onBlur={onBlur}
@@ -150,9 +141,8 @@ export const Login = () => {
           >
             Войти
           </Button>
-          {errors.password && errors.login && (
-            <Alert severity="error">{errors.password.message}</Alert>
-          )}
+          {errors.credentials?.message && <Alert severity="error">{errors.credentials.message}</Alert>}
+          {errors.serverError?.message && <Alert severity="error">{errors.serverError.message}</Alert>}
           <Grid container justify-content="flex-end">
             <Grid item>
               <Link variant="body2" href="/signup">

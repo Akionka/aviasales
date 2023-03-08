@@ -109,7 +109,7 @@ func validPassword(value interface{}) error {
 	}
 
 	if !hasUppercaseLetters {
-		return errors.New("must cotain upper case letter")
+		return errors.New("must contain upper case letter")
 	}
 
 	return nil
