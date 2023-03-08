@@ -88,8 +88,10 @@ const PasswordCell = (props) => {
 };
 
 export const CashiersPage = () => {
-  const [page, setPage] = useState(0);
-  const [rowCount, setRowCount] = useState(10);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 25,
+    page: 0,
+  });
 
   const [rowModesModel, setRowModesModel] = useState({});
   const [rows, setRows] = useState([]);
@@ -97,8 +99,8 @@ export const CashiersPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const { data, isLoading } = useGetCashiersQuery({
-    page: page + 1,
-    count: rowCount,
+    page: paginationModel.page + 1,
+    count: paginationModel.pageSize,
   });
 
   const {
@@ -272,13 +274,9 @@ export const CashiersPage = () => {
             columns={columns}
             rows={rows}
             rowCount={data.total_count}
-            rowsPerPageOptions={[5, 10, 15, 20, 25, 50, 100]}
-            pageSize={rowCount}
-            onPageSizeChange={(newRowCount) => setRowCount(newRowCount)}
-            page={page}
-            onPageChange={(newPage) => {
-              setPage(newPage);
-            }}
+            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
             rowModesModel={rowModesModel}
             onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
             onRowEditStart={handleRowEditStart}
