@@ -91,7 +91,7 @@ func validPassword(value interface{}) error {
 	}
 
 	var (
-		hasUppercaseLetter bool
+		hasUppercaseLetters bool
 		hasDigits          bool
 	)
 
@@ -100,7 +100,7 @@ func validPassword(value interface{}) error {
 			hasDigits = true
 		}
 		if unicode.IsUpper(c) {
-			hasUppercaseLetter = true
+			hasUppercaseLetters = true
 		}
 	}
 
@@ -108,7 +108,7 @@ func validPassword(value interface{}) error {
 		return errors.New("must contain digits")
 	}
 
-	if !hasUppercaseLetter {
+	if !hasUppercaseLetters {
 		return errors.New("must cotain upper case letter")
 	}
 

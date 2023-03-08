@@ -17,6 +17,25 @@ import Container from "@mui/material/Container";
 import Alert from "@mui/material/Alert";
 import { useEffect } from "react";
 import { Link } from "@mui/material";
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+
+const makeNameString = (name, min, max) => {
+  return z.string()
+  .min(min, `Поле ${name} должно содержать минимум ${min} символа`)
+  .max(max, `Поле ${name} может содержать максимум ${max} символа`)
+}
+
+const signupSchema = z.object({
+  first_name: makeNameString('Имя', 3, 64),
+  last_name: makeNameString('Фамилия', 3, 64),
+  middle_name: z.union([makeNameString('Отчество', 3, 64), z.literal('')]),
+  login: makeNameString('Логин', 3, 32).regex(/^[a-zA-Z0-9]+$/, `Поле Логин может содержать только латинские заглавные и строчные буквы и цифры`),
+  password: makeNameString('Пароль', 4, 16)
+  .regex(/\d/)
+  .refine(str => str.toLowerCase !== str, {message: "Пароль должен содержать хотя бы одну заглавную букву"})
+  .refine(str => !str.includes('*&{}|+'), {message: "Пароль не должен содержать запрещённые символы: *?{}|+"})
+})
 
 export const Signup = () => {
   const dispatch = useDispatch();
@@ -35,7 +54,7 @@ export const Signup = () => {
     formState: { errors },
     setError,
     control,
-  } = useForm();
+  } = useForm({resolver: zodResolver(signupSchema)});
 
   useEffect(() => {
     if (token) {
@@ -63,24 +82,24 @@ export const Signup = () => {
       sessionStorage.setItem("auth_token", user.token);
     } catch (err) {
       console.log(err)
-      if (err.status === 401) {
-        setError("login", {
-          type: "custom",
-          message: "Неправильный логин или пароль!",
-        });
-        setError("password", {
-          type: "custom",
-          message: "Неправильный логин или пароль!",
-        });
-      } else {
-        setError("login", {
-          type: "custom",
-          message: "Случилось что-то непредвиденное!",
-        });
-        setError("password", {
-          type: "custom",
-          message: `Случилось что-то непредвиденное!`,
-        });
+      switch (err.status) {
+        case 400:
+          for (const key in err.data.error) {
+            if (Object.hasOwnProperty.call(err.data.error, key)) {
+              const element = err.data.error[key];
+              setError(key, {
+                type: "custom",
+                message: element
+              })
+            }
+          }
+          break
+        default:
+          setError("serverError", {
+            type: "custom",
+            message: "Произошла серверная ошибка. Обратитесь к администратору",
+          });
+          break;
       }
     }
   };
@@ -88,6 +107,9 @@ export const Signup = () => {
   if (auth.user) {
     return <Navigate to={fromPage} replace={true} />;
   }
+
+  console.log(errors)
+  console.log(errors.first_name?.message)
 
   return (
     <Container component="main" maxWidth="sm">
@@ -167,7 +189,7 @@ export const Signup = () => {
                     label="Отчество"
                     name="middle_name"
                     autoComplete="middle_name"
-                    error={errors.password && errors.middle_name}
+                    error={errors.middle_name}
                     value={value}
                     onChange={onChange}
                     onBlur={onBlur}
@@ -190,7 +212,7 @@ export const Signup = () => {
                     label="Логин"
                     name="login"
                     autoComplete="login"
-                    error={errors.password && errors.login}
+                    error={errors.login}
                     value={value}
                     onChange={onChange}
                     onBlur={onBlur}
@@ -213,8 +235,8 @@ export const Signup = () => {
                     label="Пароль"
                     name="password"
                     autoComplete="password"
-                    type="password"
-                    error={errors.password && errors.login}
+                    // type="password"
+                    error={errors.password}
                     value={value}
                     onChange={onChange}
                     onBlur={onBlur}
@@ -233,9 +255,13 @@ export const Signup = () => {
           >
             Войти
           </Button>
-          {errors.password && errors.login && (
-            <Alert severity="error">{errors.password.message}</Alert>
-          )}
+          {errors.first_name?.message && <Alert severity="error">{errors.first_name.message}</Alert>}
+          {errors.last_name?.message && <Alert severity="error">{errors.last_name.message}</Alert>}
+          {errors.middle_name?.message && <Alert severity="error">{errors.middle_name.message}</Alert>}
+          {errors.login?.message && errors.login.type !== 'custom' && <Alert severity="error">{errors.login.message}</Alert>}
+          {errors.password?.message && errors.password.type !== 'custom' && <Alert severity="error">{errors.password.message}</Alert>}
+          {errors.credentials?.message && <Alert severity="error">{errors.credentials.message}</Alert>}
+          {errors.serverError?.message && <Alert severity="error">{errors.serverError.message}</Alert>}
           <Grid container justify-content="flex-end">
             <Grid item>
               <Link variant="body2" href="/signup">
