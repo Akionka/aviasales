@@ -258,98 +258,97 @@ export const LinesPage = () => {
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
   return (
-
-      <Grid rowSpacing={3} columnSpacing={3} container>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            editMode="row"
-            getRowId={(row) => row.line_code}
-            columns={columns}
-            rows={rows}
-            rowCount={data.total_count}
-            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            components={{
-              Toolbar: EditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-            paginationMode="server"
-            loading={
-              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+    <Grid rowSpacing={3} columnSpacing={3} container>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          editMode="row"
+          getRowId={(row) => row.line_code}
+          columns={columns}
+          rows={rows}
+          rowCount={data.total_count}
+          pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          components={{
+            Toolbar: EditToolbar,
+          }}
+          componentsProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          paginationMode="server"
+          loading={
+            isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+          }
+          processRowUpdate={async (newRow, oldRow) => {
+            try {
+              if (newRow.isNew) {
+                const res = await createLine({
+                  line: {
+                    ...newRow,
+                    dep_time: newRow.dep_time.format("HH:mm"),
+                    arr_time: newRow.arr_time.format("HH:mm"),
+                  },
+                }).unwrap();
+                setRows((prevRows) =>
+                  prevRows.filter((row) => row.line_code !== oldRow.line_code)
+                );
+                return res;
+              } else {
+                const res = await updateLine({
+                  code: oldRow.line_code,
+                  line: {
+                    ...newRow,
+                    dep_time: newRow.dep_time.format("HH:mm"),
+                    arr_time: newRow.arr_time.format("HH:mm"),
+                  },
+                }).unwrap();
+                return res;
+              }
+            } catch (error) {
+              throw new Error(error.data.error);
             }
-            processRowUpdate={async (newRow, oldRow) => {
-              try {
-                if (newRow.isNew) {
-                  const res = await createLine({
-                    line: {
-                      ...newRow,
-                      dep_time: newRow.dep_time.format("HH:mm"),
-                      arr_time: newRow.arr_time.format("HH:mm"),
-                    },
-                  }).unwrap();
-                  setRows((prevRows) =>
-                    prevRows.filter((row) => row.line_code !== oldRow.line_code)
-                  );
-                  return res;
-                } else {
-                  const res = await updateLine({
-                    code: oldRow.line_code,
-                    line: {
-                      ...newRow,
-                      dep_time: newRow.dep_time.format("HH:mm"),
-                      arr_time: newRow.arr_time.format("HH:mm"),
-                    },
-                  }).unwrap();
-                  return res;
-                }
-              } catch (error) {
-                throw new Error(error.data.error);
-              }
-            }}
-            onProcessRowUpdateError={(error) => {
-              alert(error);
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            size="small"
-            label="IATA код рейса"
-          />
-        </Grid>
-        <Grid item xs={5}>
-          {isLoadingLine && <CircularProgress />}
-          {!isLoadingLine && error && (
-            <Typography>
-              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
-            </Typography>
-          )}
-          {!isLoadingLine && !error && line && searchQuery !== "" && (
-            <EntityInfo
-              items={columns
-                .filter((col) => col.type !== "actions")
-                .map((col) => {
-                  return { label: col.headerName, value: line[col.field] };
-                })}
-              onDelete={() =>
-                deleteLine({ code: line.line_code })
-                  .unwrap()
-                  .catch(({ data: { error } }) => alert(error))
-              }
-            />
-          )}
-        </Grid>
+          }}
+          onProcessRowUpdateError={(error) => {
+            alert(error);
+          }}
+        />
       </Grid>
+      <Grid item xs={12}>
+        <TextField
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          size="small"
+          label="IATA код рейса"
+        />
+      </Grid>
+      <Grid item xs={5}>
+        {isLoadingLine && <CircularProgress />}
+        {!isLoadingLine && error && (
+          <Typography>
+            Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+          </Typography>
+        )}
+        {!isLoadingLine && !error && line && searchQuery !== "" && (
+          <EntityInfo
+            items={columns
+              .filter((col) => col.type !== "actions")
+              .map((col) => {
+                return { label: col.headerName, value: line[col.field] };
+              })}
+            onDelete={() =>
+              deleteLine({ code: line.line_code })
+                .unwrap()
+                .catch(({ data: { error } }) => alert(error))
+            }
+          />
+        )}
+      </Grid>
+    </Grid>
   );
 };

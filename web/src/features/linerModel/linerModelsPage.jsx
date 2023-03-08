@@ -194,94 +194,94 @@ export const LinerModelsPage = () => {
     return <Skeleton variant="rectangular" width={'auto'} height={256} />;
 
   return (
-      <Grid rowSpacing={3} columnSpacing={3} container>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            editMode="row"
-            getRowId={(row) => row.iata_type_code}
-            columns={columns}
-            rows={rows}
-            rowCount={data.total_count}
-            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            components={{
-              Toolbar: EditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-            paginationMode="server"
-            loading={
-              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+    <Grid rowSpacing={3} columnSpacing={3} container>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          editMode="row"
+          getRowId={(row) => row.iata_type_code}
+          columns={columns}
+          rows={rows}
+          rowCount={data.total_count}
+          pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          components={{
+            Toolbar: EditToolbar,
+          }}
+          componentsProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          paginationMode="server"
+          loading={
+            isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+          }
+          processRowUpdate={async (newRow, oldRow) => {
+            try {
+              if (newRow.isNew) {
+                const res = await createLinerModel({
+                  liner_model: newRow,
+                }).unwrap();
+                setRows((prevRows) =>
+                  prevRows.filter(
+                    (row) => row.iata_type_code !== oldRow.iata_type_code
+                  )
+                );
+                return res;
+              } else {
+                const res = await updateLinerModel({
+                  code: oldRow.iata_type_code,
+                  liner_model: newRow,
+                }).unwrap();
+                return res;
+              }
+            } catch (error) {
+              throw new Error(error.data.error);
             }
-            processRowUpdate={async (newRow, oldRow) => {
-              try {
-                if (newRow.isNew) {
-                  const res = await createLinerModel({
-                    liner_model: newRow,
-                  }).unwrap();
-                  setRows((prevRows) =>
-                    prevRows.filter(
-                      (row) => row.iata_type_code !== oldRow.iata_type_code
-                    )
-                  );
-                  return res;
-                } else {
-                  const res = await updateLinerModel({
-                    code: oldRow.iata_type_code,
-                    liner_model: newRow,
-                  }).unwrap();
-                  return res;
-                }
-              } catch (error) {
-                throw new Error(error.data.error);
-              }
-            }}
-            onProcessRowUpdateError={(error) => {
-              alert(error);
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            size="small"
-            label="Код модели самолёта"
-          />
-        </Grid>
-        <Grid item xs={5}>
-          {isLoadingLinerModel && <CircularProgress />}
-          {!isLoadingLinerModel && error && (
-            <Typography>
-              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
-            </Typography>
-          )}
-          {!isLoadingLinerModel && !error && linerModel && searchQuery !== "" && (
-            <EntityInfo
-              items={columns
-                .filter((col) => col.type !== "actions")
-                .map((col) => {
-                  return {
-                    label: col.headerName,
-                    value: linerModel[col.field],
-                  };
-                })}
-              onDelete={() =>
-                deleteLinerModel({ code: linerModel.iata_type_code })
-                  .unwrap()
-                  .catch(({ data: { error } }) => alert(error))
-              }
-            />
-          )}
-        </Grid>
+          }}
+          onProcessRowUpdateError={(error) => {
+            alert(error);
+          }}
+        />
       </Grid>
+      <Grid item xs={12}>
+        <TextField
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          size="small"
+          label="Код модели самолёта"
+        />
+      </Grid>
+      <Grid item xs={5}>
+        {isLoadingLinerModel && <CircularProgress />}
+        {!isLoadingLinerModel && error && (
+          <Typography>
+            Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+          </Typography>
+        )}
+        {!isLoadingLinerModel && !error && linerModel && searchQuery !== "" && (
+          <EntityInfo
+            items={columns
+              .filter((col) => col.type !== "actions")
+              .map((col) => {
+                return {
+                  label: col.headerName,
+                  value: linerModel[col.field],
+                };
+              })}
+            onDelete={() =>
+              deleteLinerModel({ code: linerModel.iata_type_code })
+                .unwrap()
+                .catch(({ data: { error } }) => alert(error))
+            }
+          />
+        )}
+      </Grid>
+    </Grid>
   );
 };

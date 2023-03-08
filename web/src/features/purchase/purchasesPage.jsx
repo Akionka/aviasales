@@ -218,108 +218,107 @@ export const PurchasesPage = () => {
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
   return (
-
-      <Grid rowSpacing={3} columnSpacing={3} container>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            editMode="row"
-            columns={columns}
-            rows={rows}
-            rowCount={data.total_count}
-            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            components={{
-              Toolbar: EditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-            paginationMode="server"
-            loading={
-              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+    <Grid rowSpacing={3} columnSpacing={3} container>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          editMode="row"
+          columns={columns}
+          rows={rows}
+          rowCount={data.total_count}
+          pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          components={{
+            Toolbar: EditToolbar,
+          }}
+          componentsProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          paginationMode="server"
+          loading={
+            isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+          }
+          processRowUpdate={async (newRow, oldRow) => {
+            try {
+              if (newRow.isNew) {
+                const res = await createPurchase({
+                  purchase: newRow,
+                }).unwrap();
+                setRows((prevRows) =>
+                  prevRows.filter((row) => row.id !== oldRow.id)
+                );
+                return res;
+              } else {
+                const res = await updatePurchase({
+                  id: oldRow.id,
+                  purchase: newRow,
+                }).unwrap();
+                return res;
+              }
+            } catch (error) {
+              throw new Error(error.data.error);
             }
-            processRowUpdate={async (newRow, oldRow) => {
-              try {
-                if (newRow.isNew) {
-                  const res = await createPurchase({
-                    purchase: newRow,
-                  }).unwrap();
-                  setRows((prevRows) =>
-                    prevRows.filter((row) => row.id !== oldRow.id)
-                  );
-                  return res;
-                } else {
-                  const res = await updatePurchase({
-                    id: oldRow.id,
-                    purchase: newRow,
-                  }).unwrap();
-                  return res;
-                }
-              } catch (error) {
-                throw new Error(error.data.error);
-              }
-            }}
-            onProcessRowUpdateError={(error) => {
-              alert(error);
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            size="small"
-            label="ID покупки"
-            type={"number"}
-          />
-        </Grid>
-        <Grid item xs={5}>
-          {isLoadingPurchase && <CircularProgress />}
-          {!isLoadingPurchase && error && (
-            <Typography>
-              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
-            </Typography>
-          )}
-          {!isLoadingPurchase && !error && purchase && searchQuery !== "" && (
-            <EntityInfo
-              items={columns
-                .filter((col) => col.type !== "actions")
-                .map((col) => {
-                  return {
-                    label: col.headerName,
-                    value: (() => {
-                      switch (col.type) {
-                        case "boolean":
-                          return purchase[col.field] ? "Да" : "Нет";
-                        case "date":
-                          return purchase[col.field]
-                            ? new Date(purchase[col.field]).toLocaleDateString()
-                            : "";
-                        case "dateTime":
-                          return purchase[col.field]
-                            ? new Date(purchase[col.field]).toLocaleString()
-                            : "";
-                        default:
-                          return purchase[col.field];
-                      }
-                    })(),
-                  };
-                })}
-              onDelete={() =>
-                deletePurchase({ id: purchase.id })
-                  .unwrap()
-                  .catch(({ data: { error } }) => alert(error))
-              }
-            />
-          )}
-        </Grid>
+          }}
+          onProcessRowUpdateError={(error) => {
+            alert(error);
+          }}
+        />
       </Grid>
+      <Grid item xs={12}>
+        <TextField
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          size="small"
+          label="ID покупки"
+          type={"number"}
+        />
+      </Grid>
+      <Grid item xs={5}>
+        {isLoadingPurchase && <CircularProgress />}
+        {!isLoadingPurchase && error && (
+          <Typography>
+            Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+          </Typography>
+        )}
+        {!isLoadingPurchase && !error && purchase && searchQuery !== "" && (
+          <EntityInfo
+            items={columns
+              .filter((col) => col.type !== "actions")
+              .map((col) => {
+                return {
+                  label: col.headerName,
+                  value: (() => {
+                    switch (col.type) {
+                      case "boolean":
+                        return purchase[col.field] ? "Да" : "Нет";
+                      case "date":
+                        return purchase[col.field]
+                          ? new Date(purchase[col.field]).toLocaleDateString()
+                          : "";
+                      case "dateTime":
+                        return purchase[col.field]
+                          ? new Date(purchase[col.field]).toLocaleString()
+                          : "";
+                      default:
+                        return purchase[col.field];
+                    }
+                  })(),
+                };
+              })}
+            onDelete={() =>
+              deletePurchase({ id: purchase.id })
+                .unwrap()
+                .catch(({ data: { error } }) => alert(error))
+            }
+          />
+        )}
+      </Grid>
+    </Grid>
   );
 };

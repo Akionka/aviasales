@@ -238,129 +238,128 @@ export const TicketsPage = () => {
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
   return (
-
-      <Grid rowSpacing={3} columnSpacing={3} container>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            editMode="row"
-            columns={columns}
-            rows={rows}
-            rowCount={data.total_count}
-            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            components={{
-              Toolbar: EditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-            paginationMode="server"
-            loading={
-              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+    <Grid rowSpacing={3} columnSpacing={3} container>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          editMode="row"
+          columns={columns}
+          rows={rows}
+          rowCount={data.total_count}
+          pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          components={{
+            Toolbar: EditToolbar,
+          }}
+          componentsProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          paginationMode="server"
+          loading={
+            isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+          }
+          processRowUpdate={async (newRow, oldRow) => {
+            const dateInUTC = new Date(
+              Date.UTC(
+                newRow.passenger_birth_date.getFullYear(),
+                newRow.passenger_birth_date.getMonth(),
+                newRow.passenger_birth_date.getDate(),
+                0,
+                0,
+                0,
+                0
+              )
+            );
+            try {
+              if (newRow.isNew) {
+                const res = await createTicket({
+                  ticket: { ...newRow, passenger_birth_date: dateInUTC },
+                }).unwrap();
+                setRows((prevRows) =>
+                  prevRows.filter((row) => row.id !== oldRow.id)
+                );
+                return res;
+              } else {
+                const res = await updateTicket({
+                  id: oldRow.id,
+                  ticket: { ...newRow, passenger_birth_date: dateInUTC },
+                }).unwrap();
+                return res;
+              }
+            } catch (error) {
+              throw new Error(error.data.error);
             }
-            processRowUpdate={async (newRow, oldRow) => {
-              const dateInUTC = new Date(
-                Date.UTC(
-                  newRow.passenger_birth_date.getFullYear(),
-                  newRow.passenger_birth_date.getMonth(),
-                  newRow.passenger_birth_date.getDate(),
-                  0,
-                  0,
-                  0,
-                  0
-                )
-              );
-              try {
-                if (newRow.isNew) {
-                  const res = await createTicket({
-                    ticket: { ...newRow, passenger_birth_date: dateInUTC },
-                  }).unwrap();
-                  setRows((prevRows) =>
-                    prevRows.filter((row) => row.id !== oldRow.id)
-                  );
-                  return res;
-                } else {
-                  const res = await updateTicket({
-                    id: oldRow.id,
-                    ticket: { ...newRow, passenger_birth_date: dateInUTC },
-                  }).unwrap();
-                  return res;
-                }
-              } catch (error) {
-                throw new Error(error.data.error);
-              }
-            }}
-            onProcessRowUpdateError={(error) => {
-              alert(error);
-            }}
-          />
-        </Grid>
-        <Grid item xs={2}>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            size="small"
-            label="ID билета"
-            type={"number"}
-          />
-        </Grid>
-        <Grid item xs={10}>
-          {!isLoadingTicket && !error && ticket && searchQuery !== "" && (
-            <Button
-              variant="contained"
-              onClick={() => navigate(`/ticket/${searchQuery}/report`)}
-            >
-              Просмотреть отчёт
-            </Button>
-          )}
-        </Grid>
-        <Grid item xs={5}>
-          {isLoadingTicket && <CircularProgress />}
-          {!isLoadingTicket && error && (
-            <Typography>
-              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
-            </Typography>
-          )}
-          {!isLoadingTicket && !error && ticket && searchQuery !== "" && (
-            <EntityInfo
-              items={columns
-                .filter((col) => col.type !== "actions")
-                .map((col) => {
-                  return {
-                    label: col.headerName,
-                    value: (() => {
-                      switch (col.field) {
-                        // case "passenger_birth_date":
-                        // return ticket[col.field] ? "Да" : "Нет";
-                        case "passenger_birth_date":
-                          return ticket[col.field]
-                            ? new Date(ticket[col.field]).toLocaleDateString()
-                            : "";
-                        case "passenger_sex":
-                          return formatGender(ticket[col.field]);
-                        case "passenger_passport_number":
-                          return formatPassportNumber(ticket[col.field]);
-                        default:
-                          return ticket[col.field];
-                      }
-                    })(),
-                  };
-                })}
-              onDelete={() =>
-                deleteTicket({ id: ticket.id })
-                  .unwrap()
-                  .catch(({ data: { error } }) => alert(error))
-              }
-            />
-          )}
-        </Grid>
+          }}
+          onProcessRowUpdateError={(error) => {
+            alert(error);
+          }}
+        />
       </Grid>
+      <Grid item xs={2}>
+        <TextField
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          size="small"
+          label="ID билета"
+          type={"number"}
+        />
+      </Grid>
+      <Grid item xs={10}>
+        {!isLoadingTicket && !error && ticket && searchQuery !== "" && (
+          <Button
+            variant="contained"
+            onClick={() => navigate(`/ticket/${searchQuery}/report`)}
+          >
+            Просмотреть отчёт
+          </Button>
+        )}
+      </Grid>
+      <Grid item xs={5}>
+        {isLoadingTicket && <CircularProgress />}
+        {!isLoadingTicket && error && (
+          <Typography>
+            Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+          </Typography>
+        )}
+        {!isLoadingTicket && !error && ticket && searchQuery !== "" && (
+          <EntityInfo
+            items={columns
+              .filter((col) => col.type !== "actions")
+              .map((col) => {
+                return {
+                  label: col.headerName,
+                  value: (() => {
+                    switch (col.field) {
+                      // case "passenger_birth_date":
+                      // return ticket[col.field] ? "Да" : "Нет";
+                      case "passenger_birth_date":
+                        return ticket[col.field]
+                          ? new Date(ticket[col.field]).toLocaleDateString()
+                          : "";
+                      case "passenger_sex":
+                        return formatGender(ticket[col.field]);
+                      case "passenger_passport_number":
+                        return formatPassportNumber(ticket[col.field]);
+                      default:
+                        return ticket[col.field];
+                    }
+                  })(),
+                };
+              })}
+            onDelete={() =>
+              deleteTicket({ id: ticket.id })
+                .unwrap()
+                .catch(({ data: { error } }) => alert(error))
+            }
+          />
+        )}
+      </Grid>
+    </Grid>
   );
 };

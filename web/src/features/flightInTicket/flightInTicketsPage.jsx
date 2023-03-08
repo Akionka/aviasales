@@ -211,96 +211,95 @@ export const FlightInTicketsPage = () => {
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
   return (
-
-      <Grid rowSpacing={3} columnSpacing={3} container>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            editMode="row"
-            columns={columns}
-            rows={rows}
-            rowCount={data.total_count}
-            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            components={{
-              Toolbar: EditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-            paginationMode="server"
-            loading={
-              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
-            }
-            processRowUpdate={async (newRow, oldRow) => {
-              try {
-                if (newRow.isNew) {
-                  const res = await createFlightInTicket({
-                    flight_in_ticket: newRow,
-                  }).unwrap();
-                  setRows((prevRows) =>
-                    prevRows.filter((row) => row.id !== oldRow.id)
-                  );
-                  return res;
-                } else {
-                  const res = await updateFlightInTicket({
-                    id: oldRow.id,
-                    flight_in_ticket: newRow,
-                  }).unwrap();
-                  return res;
-                }
-              } catch (error) {
-                throw new Error(error.data.error);
+    <Grid rowSpacing={3} columnSpacing={3} container>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          editMode="row"
+          columns={columns}
+          rows={rows}
+          rowCount={data.total_count}
+          pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          components={{
+            Toolbar: EditToolbar,
+          }}
+          componentsProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          paginationMode="server"
+          loading={
+            isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+          }
+          processRowUpdate={async (newRow, oldRow) => {
+            try {
+              if (newRow.isNew) {
+                const res = await createFlightInTicket({
+                  flight_in_ticket: newRow,
+                }).unwrap();
+                setRows((prevRows) =>
+                  prevRows.filter((row) => row.id !== oldRow.id)
+                );
+                return res;
+              } else {
+                const res = await updateFlightInTicket({
+                  id: oldRow.id,
+                  flight_in_ticket: newRow,
+                }).unwrap();
+                return res;
               }
-            }}
-            onProcessRowUpdateError={(error) => {
-              alert(error);
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            size="small"
-            label="ID полёта в билете"
-            type={"number"}
-          />
-        </Grid>
-        <Grid item xs={5}>
-          {isLoadingFlightInTicket && <CircularProgress />}
-          {!isLoadingFlightInTicket && error && (
-            <Typography>
-              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
-            </Typography>
-          )}
-          {!isLoadingFlightInTicket &&
-            !error &&
-            flightInTicket &&
-            searchQuery !== "" && (
-              <EntityInfo
-                items={columns
-                  .filter((col) => col.type !== "actions")
-                  .map((col) => {
-                    return {
-                      label: col.headerName,
-                      value: flightInTicket[col.field],
-                    };
-                  })}
-                onDelete={() =>
-                  deleteFlightInTicket({ id: flightInTicket.id })
-                    .unwrap()
-                    .catch(({ data: { error } }) => alert(error))
-                }
-              />
-            )}
-        </Grid>
+            } catch (error) {
+              throw new Error(error.data.error);
+            }
+          }}
+          onProcessRowUpdateError={(error) => {
+            alert(error);
+          }}
+        />
       </Grid>
+      <Grid item xs={12}>
+        <TextField
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          size="small"
+          label="ID полёта в билете"
+          type={"number"}
+        />
+      </Grid>
+      <Grid item xs={5}>
+        {isLoadingFlightInTicket && <CircularProgress />}
+        {!isLoadingFlightInTicket && error && (
+          <Typography>
+            Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+          </Typography>
+        )}
+        {!isLoadingFlightInTicket &&
+          !error &&
+          flightInTicket &&
+          searchQuery !== "" && (
+            <EntityInfo
+              items={columns
+                .filter((col) => col.type !== "actions")
+                .map((col) => {
+                  return {
+                    label: col.headerName,
+                    value: flightInTicket[col.field],
+                  };
+                })}
+              onDelete={() =>
+                deleteFlightInTicket({ id: flightInTicket.id })
+                  .unwrap()
+                  .catch(({ data: { error } }) => alert(error))
+              }
+            />
+          )}
+      </Grid>
+    </Grid>
   );
 };

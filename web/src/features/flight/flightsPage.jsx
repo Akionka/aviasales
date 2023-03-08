@@ -216,7 +216,6 @@ export const FlightsPage = () => {
             />,
           ];
         },
-
       })
     }
 
@@ -224,115 +223,114 @@ export const FlightsPage = () => {
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
   return (
-
-      <Grid rowSpacing={3} columnSpacing={3} container>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            editMode="row"
-            columns={columns}
-            rows={rows}
-            rowCount={data.total_count}
-            pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            rowModesModel={rowModesModel}
-            onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
-            onRowEditStart={handleRowEditStart}
-            onRowEditStop={handleRowEditStop}
-            components={{
-              Toolbar: EditToolbar,
-            }}
-            componentsProps={{
-              toolbar: { setRows, setRowModesModel },
-            }}
-            paginationMode="server"
-            loading={
-              isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+    <Grid rowSpacing={3} columnSpacing={3} container>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          editMode="row"
+          columns={columns}
+          rows={rows}
+          rowCount={data.total_count}
+          pageSizeOptions={[5, 10, 15, 20, 25, 50, 100]}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          rowModesModel={rowModesModel}
+          onRowModesModelChange={(newModel) => setRowModesModel(newModel)}
+          onRowEditStart={handleRowEditStart}
+          onRowEditStop={handleRowEditStop}
+          components={{
+            Toolbar: EditToolbar,
+          }}
+          componentsProps={{
+            toolbar: { setRows, setRowModesModel },
+          }}
+          paginationMode="server"
+          loading={
+            isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
+          }
+          processRowUpdate={async (newRow, oldRow) => {
+            const dateInUTC = new Date(
+              Date.UTC(
+                newRow.dep_date.getFullYear(),
+                newRow.dep_date.getMonth(),
+                newRow.dep_date.getDate(),
+                0,
+                0,
+                0,
+                0
+              )
+            );
+            try {
+              if (newRow.isNew) {
+                const res = await createFlight({
+                  flight: { ...newRow, dep_date: dateInUTC.toISOString() },
+                }).unwrap();
+                setRows((prevRows) =>
+                  prevRows.filter((row) => row.id !== oldRow.id)
+                );
+                return res;
+              } else {
+                const res = await updateFlight({
+                  id: oldRow.id,
+                  flight: { ...newRow, dep_date: dateInUTC.toISOString() },
+                }).unwrap();
+                return res;
+              }
+            } catch (error) {
+              throw new Error(error.data.error);
             }
-            processRowUpdate={async (newRow, oldRow) => {
-              const dateInUTC = new Date(
-                Date.UTC(
-                  newRow.dep_date.getFullYear(),
-                  newRow.dep_date.getMonth(),
-                  newRow.dep_date.getDate(),
-                  0,
-                  0,
-                  0,
-                  0
-                )
-              );
-              try {
-                if (newRow.isNew) {
-                  const res = await createFlight({
-                    flight: { ...newRow, dep_date: dateInUTC.toISOString() },
-                  }).unwrap();
-                  setRows((prevRows) =>
-                    prevRows.filter((row) => row.id !== oldRow.id)
-                  );
-                  return res;
-                } else {
-                  const res = await updateFlight({
-                    id: oldRow.id,
-                    flight: { ...newRow, dep_date: dateInUTC.toISOString() },
-                  }).unwrap();
-                  return res;
-                }
-              } catch (error) {
-                throw new Error(error.data.error);
-              }
-            }}
-            onProcessRowUpdateError={(error) => {
-              alert(error);
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            variant="outlined"
-            value={searchQuery}
-            onChange={handleSearchQueryChange}
-            size="small"
-            label="ID полёта"
-            type={"number"}
-          />
-        </Grid>
-        <Grid item xs={5}>
-          {isLoadingFlight && <CircularProgress />}
-          {!isLoadingFlight && error && (
-            <Typography>
-              Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
-            </Typography>
-          )}
-          {!isLoadingFlight && !error && flight && searchQuery !== "" && (
-            <EntityInfo
-              items={columns
-                .filter((col) => col.type !== "actions")
-                .map((col) => {
-                  return {
-                    label: col.headerName,
-                    value: (() => {
-                      switch (col.type) {
-                        case "boolean":
-                          return flight[col.field] ? "Да" : "Нет";
-                        case "date":
-                          return flight[col.field]
-                            ? new Date(flight[col.field]).toLocaleDateString()
-                            : "";
-                        default:
-                          return flight[col.field];
-                      }
-                    })(),
-                  };
-                })}
-              onDelete={() =>
-                deleteFlight({ id: flight.id })
-                  .unwrap()
-                  .catch(({ data: { error } }) => alert(error))
-              }
-            />
-          )}
-        </Grid>
+          }}
+          onProcessRowUpdateError={(error) => {
+            alert(error);
+          }}
+        />
       </Grid>
+      <Grid item xs={12}>
+        <TextField
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearchQueryChange}
+          size="small"
+          label="ID полёта"
+          type={"number"}
+        />
+      </Grid>
+      <Grid item xs={5}>
+        {isLoadingFlight && <CircularProgress />}
+        {!isLoadingFlight && error && (
+          <Typography>
+            Ошибка! Код: {error?.status}. Сообщение: {error?.data?.error}
+          </Typography>
+        )}
+        {!isLoadingFlight && !error && flight && searchQuery !== "" && (
+          <EntityInfo
+            items={columns
+              .filter((col) => col.type !== "actions")
+              .map((col) => {
+                return {
+                  label: col.headerName,
+                  value: (() => {
+                    switch (col.type) {
+                      case "boolean":
+                        return flight[col.field] ? "Да" : "Нет";
+                      case "date":
+                        return flight[col.field]
+                          ? new Date(flight[col.field]).toLocaleDateString()
+                          : "";
+                      default:
+                        return flight[col.field];
+                    }
+                  })(),
+                };
+              })}
+            onDelete={() =>
+              deleteFlight({ id: flight.id })
+                .unwrap()
+                .catch(({ data: { error } }) => alert(error))
+            }
+          />
+        )}
+      </Grid>
+    </Grid>
   );
 };
