@@ -71,6 +71,7 @@ type Cashier struct {
 	FirstName  string `json:"first_name"`
 	MiddleName string `json:"middle_name"`
 	Password   string `json:"password,omitempty"`
+	RoleID     int    `json:"role_id"`
 }
 
 func (c *Cashier) Validate() error {
@@ -92,7 +93,7 @@ func validPassword(value interface{}) error {
 
 	var (
 		hasUppercaseLetters bool
-		hasDigits          bool
+		hasDigits           bool
 	)
 
 	for _, c := range s {

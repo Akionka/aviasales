@@ -28,6 +28,7 @@ import {
 } from "@mui/x-data-grid";
 import { EntityInfo } from "../../components/EntityInfo";
 import { localDatetimeToUTC } from "../../utils/dateConverter";
+import { useAuth } from "../../hooks/useAuth";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -58,6 +59,7 @@ const EditToolbar = ({ setRows, setRowModesModel }) => {
 };
 
 export const FlightsPage = () => {
+  const auth = useAuth()
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 25,
     page: 0,
@@ -173,59 +175,59 @@ export const FlightsPage = () => {
       headerName: "Код самолёта",
       width: 200,
       editable: true,
-    },
-    {
-      field: "actions",
-      headerName: "Действия",
-      type: "actions",
-      width: 140,
-      getActions: (row) => {
-        const isInEditMode = rowModesModel[row.id]?.mode === GridRowModes.Edit;
-        if (isInEditMode) {
+    }]
+    if (auth.user.role_id === 2) {
+      columns.push({
+        field: "actions",
+        headerName: "Действия",
+        type: "actions",
+        width: 140,
+        getActions: (row) => {
+          const isInEditMode = rowModesModel[row.id]?.mode === GridRowModes.Edit;
+          if (isInEditMode) {
+            return [
+              <GridActionsCellItem
+                icon={<SaveIcon />}
+                label="Save"
+                onClick={handleSaveClick(row)}
+              />,
+              <GridActionsCellItem
+                icon={<CancelIcon />}
+                label="Cancel"
+                className="textPrimary"
+                onClick={handleCancelClick(row)}
+                color="inherit"
+              />,
+            ];
+          }
           return [
             <GridActionsCellItem
-              icon={<SaveIcon />}
-              label="Save"
-              onClick={handleSaveClick(row)}
+              icon={<EditIcon />}
+              label="Edit"
+              className="textPrimary"
+              onClick={handleEditClick(row)}
+              color="inherit"
             />,
             <GridActionsCellItem
-              icon={<CancelIcon />}
-              label="Cancel"
-              className="textPrimary"
-              onClick={handleCancelClick(row)}
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={handleDeleteClick(row)}
               color="inherit"
             />,
           ];
-        }
-        return [
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={handleEditClick(row)}
-            color="inherit"
-          />,
-          <GridActionsCellItem
-            icon={<DeleteIcon />}
-            label="Delete"
-            onClick={handleDeleteClick(row)}
-            color="inherit"
-          />,
-        ];
-      },
-    },
-  ];
+        },
+
+      })
+    }
 
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
   return (
-    <>
-      {" "}
+
       <Grid rowSpacing={3} columnSpacing={3} container>
         <Grid item xs={12}>
           <DataGrid
-            getRowHeight={() => "auto"}
             autoHeight
             editMode="row"
             columns={columns}
@@ -248,7 +250,6 @@ export const FlightsPage = () => {
             loading={
               isLoading || isLoadingUpdate || isLoadingDelete || isLoadingCreate
             }
-            experimentalFeatures={{ newEditingApi: true }}
             processRowUpdate={async (newRow, oldRow) => {
               const dateInUTC = new Date(
                 Date.UTC(
@@ -333,6 +334,5 @@ export const FlightsPage = () => {
           )}
         </Grid>
       </Grid>
-    </>
   );
 };

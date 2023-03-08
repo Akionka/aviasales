@@ -25,7 +25,7 @@ var (
 	errRequestedItemDoesNotExist = errors.New("requested item does not exist")
 	errCantDeleteAdmin           = errors.New("you cannot delete admin cashier")
 	errCantUpdateAdminLogin      = errors.New("you cannot update admin cashier login")
-	errRegularUserPostPutDelete  = errors.New("you are not allowed to update/delete/create entities ")
+	errRegularUserPutDelete  = errors.New("you are not allowed to update or delete entities ")
 )
 
 const (
@@ -89,6 +89,7 @@ func (s *server) configureRouter() {
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
 				MiddleName: c.MiddleName,
+				RoleID:     c.RoleID,
 			}
 			s.respond(w, r, 200, cashierResponse)
 			return
@@ -115,11 +116,13 @@ func (s *server) configureRouter() {
 	adminOnlyCreateUpdateDelete.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			c, ok := r.Context().Value(ctxKeyCashier).(*store.CashierModel)
-			if ok {
-				if (r.Method == "PUT" || r.Method == "POST" || r.Method == "DELETE") && c.Login != "admin" {
-					s.error(w, r, http.StatusUnauthorized, errRegularUserPostPutDelete)
-					return
-				}
+			if !ok {
+				h.ServeHTTP(w, r)
+				return
+			}
+			if (r.Method == "PUT" || r.Method == "DELETE") && c.RoleID != 2 {
+				s.error(w, r, http.StatusUnauthorized, errRegularUserPutDelete)
+				return
 			}
 			h.ServeHTTP(w, r)
 		})
@@ -182,12 +185,12 @@ func (s *server) authenticateUser(next http.Handler) http.Handler {
 			return
 		}
 
-		cashierID, ok := claims["login"].(string)
+		login, ok := claims["login"].(string)
 		if !ok {
 			s.error(w, r, http.StatusUnauthorized, errBadAuthorizationToken)
 			return
 		}
-		cashier, err := s.store.Cashier().FindByLogin(cashierID)
+		cashier, err := s.store.Cashier().FindByLogin(login)
 		if err != nil {
 			s.error(w, r, http.StatusUnauthorized, errBadAuthorizationToken)
 			return
@@ -241,6 +244,7 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 
 		token := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
 			"login": c.Login,
+			"role":  c.RoleID,
 		})
 		tokenString, err := token.SignedString(tokenSecret)
 		if err != nil {
@@ -250,10 +254,12 @@ func (s *server) handleSessionsCreate() http.HandlerFunc {
 		s.respond(w, r, 200, response{
 			Token: tokenString,
 			User: &Cashier{
+				ID:         c.ID,
 				Login:      c.Login,
 				LastName:   c.LastName,
 				FirstName:  c.FirstName,
 				MiddleName: c.MiddleName,
+				RoleID:     c.RoleID,
 			},
 		})
 	}

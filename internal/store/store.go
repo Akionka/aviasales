@@ -41,6 +41,7 @@ type CashierModel struct {
 	FirstName  string `db:"first_name"`
 	MiddleName string `db:"middle_name"`
 	Password   string `db:"password,omitempty"`
+	RoleID     int    `db:"role_id"`
 }
 
 type FlightModel struct {
@@ -114,6 +115,11 @@ type TicketReportFlightModel struct {
 	LineCode     string     `db:"line_code" json:"line_code"`
 	SeatNumber   string     `db:"number" json:"number"`
 	SeatClass    string     `db:"class" json:"class"`
+}
+
+type RoleModel struct {
+	ID   int    `db:"id"`
+	Name string `db:"name"`
 }
 
 // ComparePassword returns true if the password matches and false otherwise
