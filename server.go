@@ -1834,7 +1834,7 @@ func (s *server) handleTicketReportGet() http.HandlerFunc {
 
 func (s *server) error(w http.ResponseWriter, r *http.Request, code int, err error) {
 	if err, ok := err.(validation.Errors); ok {
-		s.respond(w, r, code, map[string]map[string]error{"error": err})
+		s.respond(w, r, code, map[string]validation.Errors{"error": err})
 		return
 	}
 	s.respond(w, r, code, map[string]string{"error": err.Error()})
