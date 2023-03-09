@@ -17,6 +17,8 @@ import {
   useDeleteFlightInTicketByIDMutation,
   useGetFlightInTicketByIDQuery,
   useGetFlightInTicketsQuery,
+  useGetFlightsQuery,
+  useGetSeatsQuery,
   useUpdateFlightInTicketByIDMutation,
 } from "../../app/services/api";
 import { useEffect, useState } from "react";
@@ -66,6 +68,9 @@ export const FlightInTicketsPage = () => {
     page: paginationModel.page + 1,
     count: paginationModel.pageSize,
   });
+
+  const {data: flights, isLoading: isLoadingFlights} = useGetFlightsQuery({page: 0, count: -1})
+  const {data: seats, isLoading: isLoadingSeats} = useGetSeatsQuery({page: 0, count: -1})
 
   const {
     data: flightInTicket,
@@ -133,7 +138,7 @@ export const FlightInTicketsPage = () => {
   const handleSearchQueryChange = (e) => {
     setSearchQuery(e.target.value);
   };
-
+console.log(flights)
   const columns = [
     {
       field: "id",
@@ -144,24 +149,26 @@ export const FlightInTicketsPage = () => {
     },
     {
       field: "flight_id",
-      headerName: "ID полёта",
-      width: 100,
+      headerName: "Полёт",
+      width: 200,
       editable: true,
-      type: "number",
+      type: "singleSelect",
+      valueOptions: flights?.items?.map(f => {return {value: f.id, label: `${f.line_code}[${new Date(f.dep_date).toLocaleDateString()}]`}})
     },
     {
       field: "ticket_id",
-      headerName: "ID билета",
-      width: 100,
+      headerName: "Номер билета",
+      width: 125,
       editable: true,
       type: "number",
     },
     {
       field: "seat_id",
-      headerName: "ID места",
-      width: 100,
+      headerName: "Место",
+      width: 200,
       editable: true,
-      type: "number",
+      type: "singleSelect",
+      valueOptions: seats?.items?.map(s => {return {value: s.id, label: `${s.model_code} - ${s.number} - ${s.class}`}})
     }]
     if (auth.user.role_id === 2) {
       columns.push({

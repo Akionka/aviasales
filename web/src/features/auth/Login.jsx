@@ -116,22 +116,22 @@ export const Login = () => {
             control={control}
             defaultValue={""}
             render={({ field: { onChange, onBlur, value, ref } }) => (
-              <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="password"
-                label="Пароль"
-                name="password"
-                autoComplete="password"
-                // type="password"
-                error={errors.credentials}
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-                inputRef={ref}
-              />
-            )}
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="password"
+                  label="Пароль"
+                  name="password"
+                  autoComplete="password"
+                  type="password"
+                  error={errors.credentials}
+                  value={value}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  inputRef={ref} />
+              )
+            }
           />
           <Button
             type="submit"

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	"math"
 	"net/http"
 	"strconv"
 	"strings"
@@ -207,6 +208,9 @@ func (s *server) paginateMiddleware(next http.Handler) http.Handler {
 		count, err := strconv.Atoi(r.URL.Query().Get("count"))
 		if err != nil {
 			count = 10
+		}
+		if count == -1 {
+			count = math.MaxInt64
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ctxKeyPagination, paginationInfo{
 			page:     page,

@@ -185,8 +185,8 @@ export const TicketsPage = () => {
     },
     {
       field: "purchase_id",
-      headerName: "ID покупки",
-      width: 100,
+      headerName: "Номер покупки",
+      width: 125,
       editable: true,
       type: "number",
     }]

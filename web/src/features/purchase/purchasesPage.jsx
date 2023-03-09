@@ -15,6 +15,7 @@ import {
 import {
   useCreatePurchaseMutation,
   useDeletePurchaseByIDMutation,
+  useGetOfficesQuery,
   useGetPurchaseByIDQuery,
   useGetPurchasesQuery,
   useUpdatePurchaseByIDMutation,
@@ -63,6 +64,8 @@ export const PurchasesPage = () => {
     page: paginationModel.page + 1,
     count: paginationModel.pageSize,
   });
+
+  const {data: offices, isLoading: isLoadingOffices} = useGetOfficesQuery({page: 0, count: -1})
 
   const {
     data: purchase,
@@ -127,7 +130,7 @@ export const PurchasesPage = () => {
   const handleSearchQueryChange = (e) => {
     setSearchQuery(e.target.value);
   };
-
+  console.log(offices)
   const columns = [
     {
       field: "id",
@@ -165,10 +168,11 @@ export const PurchasesPage = () => {
     },
     {
       field: "booking_office_id",
-      headerName: "ID кассы",
-      width: 100,
+      headerName: "Касса",
+      width: 200,
       editable: true,
-      type: "number",
+      type: "singleSelect",
+      valueOptions: offices?.items?.map(o => {return {value: o.id, label: o.address}})
     }]
     if (auth.user.role_id === 2) {
       columns.push({

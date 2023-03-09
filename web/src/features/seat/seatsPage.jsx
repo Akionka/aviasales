@@ -15,6 +15,7 @@ import {
 import {
   useCreateSeatMutation,
   useDeleteSeatByIDMutation,
+  useGetLinerModelsQuery,
   useGetSeatByIDQuery,
   useGetSeatsQuery,
   useUpdateSeatByIDMutation,
@@ -69,6 +70,8 @@ export const SeatsPage = () => {
     isLoading: isLoadingSeat,
     error,
   } = useGetSeatByIDQuery({ id: searchQuery });
+
+  const {data: models, isLoading: isLoadingModels} = useGetLinerModelsQuery({page: 0, count: -1})
 
   useEffect(() => {
     setRows((prevRows) => {
@@ -141,6 +144,8 @@ export const SeatsPage = () => {
       headerName: "Код модели самолёта",
       width: 175,
       editable: true,
+      type: "singleSelect",
+      valueOptions: models?.items?.map(m => {return {value: m.iata_type_code, label: m.name}})
     },
     {
       field: "number",
