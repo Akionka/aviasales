@@ -32,7 +32,7 @@ const signupSchema = z.object({
   middle_name: z.union([makeNameString('Отчество', 3, 64), z.literal('')]),
   login: makeNameString('Логин', 3, 32).regex(/^[a-zA-Z0-9]+$/, `Поле Логин может содержать только латинские заглавные и строчные буквы и цифры`),
   password: makeNameString('Пароль', 4, 16)
-  .regex(/\d/)
+  .regex(/\d/, {message: "Пароль должен содержать хотя бы одну цифру"})
   .refine(str => str.toLowerCase() !== str, {message: "Пароль должен содержать хотя бы одну заглавную букву"})
   .refine(str => !str.includes('*&{}|+'), {message: "Пароль не должен содержать запрещённые символы: *?{}|+"})
 })
