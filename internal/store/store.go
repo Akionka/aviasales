@@ -44,6 +44,20 @@ type CashierModel struct {
 	RoleID     int    `db:"role_id"`
 }
 
+// ComparePassword returns true if the password matches and false otherwise
+func (c *CashierModel) ComparePassword(password string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(c.Password), []byte(password)) == nil
+}
+
+func (c *CashierModel) SetPassword(password string) error {
+	p, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		return err
+	}
+	c.Password = string(p)
+	return nil
+}
+
 type FlightModel struct {
 	ID        int        `db:"id"`
 	DepDate   *time.Time `db:"dep_date"`
@@ -120,18 +134,4 @@ type TicketReportFlightModel struct {
 type RoleModel struct {
 	ID   int    `db:"id"`
 	Name string `db:"name"`
-}
-
-// ComparePassword returns true if the password matches and false otherwise
-func (c *CashierModel) ComparePassword(password string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(c.Password), []byte(password)) == nil
-}
-
-func (c *CashierModel) SetPassword(password string) error {
-	p, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	if err != nil {
-		return err
-	}
-	c.Password = string(p)
-	return nil
 }

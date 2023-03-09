@@ -248,7 +248,7 @@ export const Signup = () => {
             sx={{ mt: 3, mb: 2 }}
             disabled={isLoadingSignup || isLoadingLogin}
           >
-            Войти
+            Зарегистрироваться
           </Button>
           {errors.first_name?.message && <Alert severity="error">{errors.first_name.message}</Alert>}
           {errors.last_name?.message && <Alert severity="error">{errors.last_name.message}</Alert>}

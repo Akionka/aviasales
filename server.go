@@ -25,7 +25,7 @@ var (
 	errRequestedItemDoesNotExist = errors.New("requested item does not exist")
 	errCantDeleteAdmin           = errors.New("you cannot delete admin cashier")
 	errCantUpdateAdminLogin      = errors.New("you cannot update admin cashier login")
-	errRegularUserPutDelete  = errors.New("you are not allowed to update or delete entities ")
+	errRegularUserPutDelete      = errors.New("you are not allowed to update or delete entities ")
 )
 
 const (
@@ -112,8 +112,20 @@ func (s *server) configureRouter() {
 	securedGet.HandleFunc("/seats", s.handleSeatsGet()).Methods(http.MethodGet, http.MethodOptions)
 	securedGet.HandleFunc("/tickets", s.handleTicketsGet()).Methods(http.MethodGet, http.MethodOptions)
 
-	adminOnlyCreateUpdateDelete := secured.NewRoute().Subrouter()
-	adminOnlyCreateUpdateDelete.Use(func(h http.Handler) http.Handler {
+	securedGet.HandleFunc("/airports", s.handleAirportsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/booking_offices", s.handleBookingOfficesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/cashiers", s.handleCashiersCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/flights", s.handleFlightsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/lines", s.handleLinesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/liner_models", s.handleLinerModelsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/liners", s.handleLinersCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/purchases", s.handlePurchasesCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/seats", s.handleSeatsCreate()).Methods(http.MethodPost, http.MethodOptions)
+	securedGet.HandleFunc("/tickets", s.handleTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
+
+	adminOnlyUpdateDelete := secured.NewRoute().Subrouter()
+	adminOnlyUpdateDelete.Use(func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			c, ok := r.Context().Value(ctxKeyCashier).(*store.CashierModel)
 			if !ok {
@@ -128,31 +140,19 @@ func (s *server) configureRouter() {
 		})
 	})
 
-	adminOnlyCreateUpdateDelete.HandleFunc("/airports", s.handleAirportsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/booking_offices", s.handleBookingOfficesCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/cashiers", s.handleCashiersCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/flight_in_tickets", s.handleFlightInTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/flights", s.handleFlightsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/lines", s.handleLinesCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/liner_models", s.handleLinerModelsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/liners", s.handleLinersCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/purchases", s.handlePurchasesCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/seats", s.handleSeatsCreate()).Methods(http.MethodPost, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/tickets", s.handleTicketsCreate()).Methods(http.MethodPost, http.MethodOptions)
-
-	adminOnlyCreateUpdateDelete.HandleFunc("/airports/{code}", s.handleAirportGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficeGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/cashiers/{id:[0-9]+}", s.handleCashierGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/cashiers/{id:[0-9]+}/password", s.handleCashierPasswordUpdate()).Methods(http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/flight_in_tickets/{id:[0-9]+}", s.handleFlightInTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/flights/{id:[0-9]+}", s.handleFlightGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/lines/{code}", s.handleLineGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/liner_models/{code}", s.handleLinerModelGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/liners/{code}", s.handleLinerGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/purchases/{id:[0-9]+}", s.handlePurchaseGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/seats/{id:[0-9]+}", s.handleSeatGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/tickets/{id:[0-9]+}", s.handleTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
-	adminOnlyCreateUpdateDelete.HandleFunc("/tickets/{id:[0-9]+}/report", s.handleTicketReportGet()).Methods(http.MethodGet, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/airports/{code}", s.handleAirportGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/booking_offices/{id:[0-9]+}", s.handleBookingOfficeGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/cashiers/{id:[0-9]+}", s.handleCashierGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/cashiers/{id:[0-9]+}/password", s.handleCashierPasswordUpdate()).Methods(http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/flight_in_tickets/{id:[0-9]+}", s.handleFlightInTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/flights/{id:[0-9]+}", s.handleFlightGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/lines/{code}", s.handleLineGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/liner_models/{code}", s.handleLinerModelGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/liners/{code}", s.handleLinerGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/purchases/{id:[0-9]+}", s.handlePurchaseGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/seats/{id:[0-9]+}", s.handleSeatGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/tickets/{id:[0-9]+}", s.handleTicketGetDeleteUpdate()).Methods(http.MethodGet, http.MethodDelete, http.MethodPut, http.MethodOptions)
+	adminOnlyUpdateDelete.HandleFunc("/tickets/{id:[0-9]+}/report", s.handleTicketReportGet()).Methods(http.MethodGet, http.MethodOptions)
 }
 
 func (s *server) authenticateUser(next http.Handler) http.Handler {

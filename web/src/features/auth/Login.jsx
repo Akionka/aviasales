@@ -33,7 +33,8 @@ export const Login = () => {
     formState: { errors },
     setError,
     control,
-  } = useForm();
+    clearErrors
+  } = useForm({reValidateMode: "onChange"});
 
   useEffect(() => {
     if (token) {
@@ -123,7 +124,7 @@ export const Login = () => {
                 label="Пароль"
                 name="password"
                 autoComplete="password"
-                type="password"
+                // type="password"
                 error={errors.credentials}
                 value={value}
                 onChange={onChange}
@@ -138,6 +139,7 @@ export const Login = () => {
             variant="contained"
             sx={{ mt: 3, mb: 2 }}
             disabled={isLoading}
+            onClick={() => clearErrors()}
           >
             Войти
           </Button>
