@@ -129,6 +129,7 @@ type TicketReportFlightModel struct {
 	LineCode     string     `db:"line_code" json:"line_code"`
 	SeatNumber   string     `db:"number" json:"number"`
 	SeatClass    string     `db:"class" json:"class"`
+	Price        float64    `db:"price" json:"price"`
 }
 
 type RoleModel struct {

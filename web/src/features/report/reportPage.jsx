@@ -26,6 +26,7 @@ const FlightItem = ({
   line,
   seatNumber,
   seatClass,
+  price
 }) => {
   return (
     <>
@@ -43,7 +44,10 @@ const FlightItem = ({
         <GridItem value={line} label="Рейс" />
         <GridItem value={seatNumber} label="Место" />
       </div>
-      <GridItem value={seatClass} label="Класс" />
+      <div className={styles.ticket__subgrid}>
+        <GridItem value={seatClass} label="Класс" />
+        <GridItem value={price} label="Стоимость" />
+      </div>
     </>
   );
 };
@@ -122,9 +126,13 @@ export const ReportPage = () => {
                   : "Эконом"
               }
               seatNumber={f.number}
+              price={f.price}
             />
           ))}
-          <div className={styles.ticket__grid_item} />
+          <GridItem
+            label="Общая стоимость"
+            value={data.flights.map(v => v.price).reduce((acc, v) => acc+=v)}
+          />
           <GridItem
             label="Общее время в пути"
             value={localDatetimeToUTC(

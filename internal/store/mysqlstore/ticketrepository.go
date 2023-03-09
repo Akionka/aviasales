@@ -129,7 +129,8 @@ func (r *TicketRepository) Report(id int) ([]*store.TicketReportFlightModel, *st
 							'GMT')) arr_time_gmt_fixed,
 	l.line_code,
 	s.number,
-	s.class
+	s.class,
+    (l.base_price * (1-0.5*f.is_hot) * CASE WHEN s.class = 'J' THEN 2 WHEN s.class = 'Y' THEN 1.5 WHEN s.class = 'W' THEN 1 END) 'price'
 FROM
 	ticket t
 			INNER JOIN
@@ -153,7 +154,7 @@ ORDER BY dep_time`, id)
 
 	for rows.Next() {
 		var f store.TicketReportFlightModel
-		rows.Scan(&f.DepCity, &f.ArrCity, &f.DepTimeLocal, &f.ArrTimeLocal, &f.DepTimeGMT, &f.ArrTimeGMT, &f.LineCode, &f.SeatNumber, &f.SeatClass)
+		rows.Scan(&f.DepCity, &f.ArrCity, &f.DepTimeLocal, &f.ArrTimeLocal, &f.DepTimeGMT, &f.ArrTimeGMT, &f.LineCode, &f.SeatNumber, &f.SeatClass, &f.Price)
 		flights = append(flights, &f)
 	}
 
