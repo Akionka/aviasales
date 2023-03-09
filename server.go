@@ -20,12 +20,10 @@ import (
 
 var (
 	tokenSecret                  = []byte("thisisthemostsecrettokenintheentireuniverse")
-	errBadAuthorizationToken     = errors.New("bad authorization token")
-	errIncorrectLoginOrPassword  = errors.New("incorrect login or password")
-	errRequestedItemDoesNotExist = errors.New("requested item does not exist")
-	errCantDeleteAdmin           = errors.New("you cannot delete admin cashier")
-	errCantUpdateAdminLogin      = errors.New("you cannot update admin cashier login")
-	errRegularUserPutDelete      = errors.New("you are not allowed to update or delete entities ")
+	errBadAuthorizationToken     = errors.New("некорректный токен авторизации")
+	errIncorrectLoginOrPassword  = errors.New("неправильный логин или пароль")
+	errRequestedItemDoesNotExist = errors.New("запрошенная сущность не существует")
+	errRegularUserPutDelete      = errors.New("вы не можете удалять или обновлять данные")
 )
 
 const (
@@ -545,11 +543,6 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 		}
 
 		if r.Method == http.MethodDelete {
-			if id == 1 {
-				s.error(w, r, http.StatusForbidden, errCantDeleteAdmin)
-				return
-			}
-
 			err := s.store.Cashier().Delete(id)
 			if err != nil {
 				s.error(w, r, http.StatusInternalServerError, err)
@@ -565,10 +558,7 @@ func (s *server) handleCashierGetDeleteUpdate() http.HandlerFunc {
 				s.error(w, r, http.StatusBadRequest, err)
 				return
 			}
-			if id == 1 && c.Login != "admin" {
-				s.error(w, r, http.StatusForbidden, errCantUpdateAdminLogin)
-				return
-			}
+
 			if err := c.Validate(); err != nil {
 				s.error(w, r, http.StatusBadRequest, err)
 				return
