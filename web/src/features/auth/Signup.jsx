@@ -26,6 +26,14 @@ const makeNameString = (name, min, max) => {
   .max(max, `Поле ${name} может содержать максимум ${max} символа`)
 }
 
+const includesAny = (str, chars) => {
+  console.log(chars.length)
+  for (let i = 0; i < chars.length; i++) {
+    if (str.includes(chars[i])) return true
+  }
+  return false
+}
+
 const signupSchema = z.object({
   first_name: makeNameString('Имя', 3, 64),
   last_name: makeNameString('Фамилия', 3, 64),
@@ -34,7 +42,7 @@ const signupSchema = z.object({
   password: makeNameString('Пароль', 4, 16)
   .regex(/\d/, {message: "Пароль должен содержать хотя бы одну цифру"})
   .refine(str => str.toLowerCase() !== str, {message: "Пароль должен содержать хотя бы одну заглавную букву"})
-  .refine(str => !str.includes('*&{}|+'), {message: "Пароль не должен содержать запрещённые символы: *?{}|+"})
+  .refine(str => !includesAny(str, '*&{}|+'), {message: "Пароль не должен содержать запрещённые символы: *&{}|+"})
 })
 
 export const Signup = () => {
