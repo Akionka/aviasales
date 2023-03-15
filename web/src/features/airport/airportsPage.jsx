@@ -234,7 +234,8 @@ export const AirportsPage = () => {
                 return res;
               }
             } catch (error) {
-              throw new Error(error.data.error);
+              const err_count = Object.keys(error.data.error).length
+              throw new Error(`${err_count > 1 ? 'Поля' : 'Поле'} ${Object.keys(error.data.error).join(', ')} ${err_count > 1 ? 'заполнены' : 'заполнено'} неправильно`);
             }
           }}
           onProcessRowUpdateError={(error) => {
