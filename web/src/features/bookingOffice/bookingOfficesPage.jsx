@@ -147,9 +147,8 @@ export const BookingOfficesPage = () => {
       width: 150,
       editable: true,
       valueFormatter: ({value}) => value && formatPhoneNumberIntl('+'+value)
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -172,6 +171,9 @@ export const BookingOfficesPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -189,9 +191,8 @@ export const BookingOfficesPage = () => {
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 

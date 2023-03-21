@@ -30,6 +30,7 @@ import {
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 import { EntityInfo } from "../../components/EntityInfo";
 import { useAuth } from "../../hooks/useAuth";
+import moment from "moment";
 
 const EditToolbar = ({ setRows, setRowModesModel }) => {
   const handleClick = () => {
@@ -194,7 +195,7 @@ export const LinesPage = () => {
     {
       field: "base_price",
       headerName: "Базовая цена",
-      width: 100,
+      width: 150,
       editable: true,
       type: "number",
     },
@@ -209,9 +210,8 @@ export const LinesPage = () => {
       headerName: "Код аэропорта прибытия",
       width: 200,
       editable: true,
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -234,6 +234,9 @@ export const LinesPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -251,9 +254,8 @@ export const LinesPage = () => {
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
@@ -290,8 +292,8 @@ export const LinesPage = () => {
                 const res = await createLine({
                   line: {
                     ...newRow,
-                    dep_time: newRow.dep_time.format("HH:mm"),
-                    arr_time: newRow.arr_time.format("HH:mm"),
+                    dep_time: moment(newRow.dep_time).format("HH:mm"),
+                    arr_time: moment(newRow.arr_time).format("HH:mm"),
                   },
                 }).unwrap();
                 setRows((prevRows) =>
@@ -303,13 +305,14 @@ export const LinesPage = () => {
                   code: oldRow.line_code,
                   line: {
                     ...newRow,
-                    dep_time: newRow.dep_time.format("HH:mm"),
-                    arr_time: newRow.arr_time.format("HH:mm"),
+                    dep_time: moment(newRow.dep_time).format("HH:mm"),
+                    arr_time: moment(newRow.arr_time).format("HH:mm"),
                   },
                 }).unwrap();
                 return res;
               }
             } catch (error) {
+              console.log(error)
               const err_count = Object.keys(error.data.error).length
               throw new Error(`${err_count > 1 ? 'Поля' : 'Поле'} ${Object.keys(error.data.error).join(', ')} ${err_count > 1 ? 'заполнены' : 'заполнено'} неправильно`);
             }

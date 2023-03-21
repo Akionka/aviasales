@@ -138,7 +138,7 @@ export const FlightInTicketsPage = () => {
   const handleSearchQueryChange = (e) => {
     setSearchQuery(e.target.value);
   };
-console.log(flights)
+
   const columns = [
     {
       field: "id",
@@ -169,9 +169,8 @@ console.log(flights)
       editable: true,
       type: "singleSelect",
       valueOptions: seats?.items?.map(s => {return {value: s.id, label: `${s.model_code} - ${s.number} - ${s.class}`}})
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -194,6 +193,9 @@ console.log(flights)
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -211,9 +213,8 @@ console.log(flights)
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 

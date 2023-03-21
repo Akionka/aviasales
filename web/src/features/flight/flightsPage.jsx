@@ -17,6 +17,8 @@ import {
   useDeleteFlightByIDMutation,
   useGetFlightByIDQuery,
   useGetFlightsQuery,
+  useGetLinersQuery,
+  useGetLinesQuery,
   useUpdateFlightByIDMutation,
 } from "../../app/services/api";
 import { useEffect, useState } from "react";
@@ -69,6 +71,10 @@ export const FlightsPage = () => {
   const [rows, setRows] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  const {data: liners, isLoading: isLoadingLiners} = useGetLinersQuery({page: 0, count: -1})
+  const {data: lines, isLoading: isLoadingLines} = useGetLinesQuery({page: 0, count: -1})
+
 
   const { data, isLoading } = useGetFlightsQuery({
     page: paginationModel.page + 1,
@@ -169,15 +175,18 @@ export const FlightsPage = () => {
       headerName: "Код рейса",
       width: 200,
       editable: true,
+      type: "singleSelect",
+      valueOptions: lines?.items?.map(l => {return {value: l.line_code, label: `${l.line_code}`}})
     },
     {
       field: "liner_code",
       headerName: "Код самолёта",
       width: 200,
       editable: true,
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+      type: "singleSelect",
+      valueOptions: liners?.items?.map(l => {return {value: l.iata_code, label: `${l.iata_code}`}})
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -200,6 +209,9 @@ export const FlightsPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -216,9 +228,8 @@ export const FlightsPage = () => {
             />,
           ];
         },
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 

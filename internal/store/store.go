@@ -59,11 +59,11 @@ func (c *CashierModel) SetPassword(password string) error {
 }
 
 type FlightModel struct {
-	ID        int        `db:"id"`
-	DepDate   *time.Time `db:"dep_date"`
-	LineCode  string     `db:"line_code"`
-	IsHot     bool       `db:"is_hot"`
-	LinerCode string     `db:"liner_code"`
+	ID        int       `db:"id"`
+	DepDate   time.Time `db:"dep_date"`
+	LineCode  string    `db:"line_code"`
+	IsHot     bool      `db:"is_hot"`
+	LinerCode string    `db:"liner_code"`
 }
 
 type FlightInTicketModel struct {
@@ -93,13 +93,13 @@ type LinerModelModel struct {
 }
 
 type PurchaseModel struct {
-	ID              int        `db:"id"`
-	Date            *time.Time `db:"date"`
-	BookingOfficeID int        `db:"booking_office_id"`
-	TotalPrice      float64    `db:"total_price"`
-	ContactPhone    string     `db:"contact_phone"`
-	ContactEmail    string     `db:"contact_email"`
-	CashierID       string     `db:"cashier_id"`
+	ID              int       `db:"id"`
+	Date            time.Time `db:"date"`
+	BookingOfficeID int       `db:"booking_office_id"`
+	TotalPrice      float64   `db:"total_price"`
+	ContactPhone    string    `db:"contact_phone"`
+	ContactEmail    string    `db:"contact_email"`
+	CashierID       string    `db:"cashier_id"`
 }
 
 type SeatModel struct {
@@ -110,26 +110,26 @@ type SeatModel struct {
 }
 
 type TicketModel struct {
-	ID                      int        `db:"id"`
-	PassengerLastName       string     `db:"pass_last_name"`
-	PassengerGivenName      string     `db:"pass_given_name"`
-	PassengerBirthDate      *time.Time `db:"pass_birth_date"`
-	PassengerPassportNumber string     `db:"pass_passport_number"`
-	PassengerSex            uint8      `db:"pass_sex"`
-	PurchaseID              int        `db:"purchase_id"`
+	ID                      int       `db:"id"`
+	PassengerLastName       string    `db:"pass_last_name"`
+	PassengerGivenName      string    `db:"pass_given_name"`
+	PassengerBirthDate      time.Time `db:"pass_birth_date"`
+	PassengerPassportNumber string    `db:"pass_passport_number"`
+	PassengerSex            uint8     `db:"pass_sex"`
+	PurchaseID              int       `db:"purchase_id"`
 }
 
 type TicketReportFlightModel struct {
-	DepCity      string     `db:"dep_city" json:"dep_city"`
-	ArrCity      string     `db:"arr_city" json:"arr_city"`
-	DepTimeLocal *time.Time `db:"dep_time_local" json:"dep_time_local"`
-	DepTimeGMT   *time.Time `db:"dep_time_gmt" json:"dep_time_gmt"`
-	ArrTimeLocal *time.Time `db:"arr_time_local" json:"arr_time_local"`
-	ArrTimeGMT   *time.Time `db:"arr_time_gmt" json:"arr_time_gmt"`
-	LineCode     string     `db:"line_code" json:"line_code"`
-	SeatNumber   string     `db:"number" json:"number"`
-	SeatClass    string     `db:"class" json:"class"`
-	Price        float64    `db:"price" json:"price"`
+	DepCity      string    `db:"dep_city" json:"dep_city"`
+	ArrCity      string    `db:"arr_city" json:"arr_city"`
+	DepTimeLocal time.Time `db:"dep_time_local" json:"dep_time_local"`
+	DepTimeGMT   time.Time `db:"dep_time_gmt" json:"dep_time_gmt"`
+	ArrTimeLocal time.Time `db:"arr_time_local" json:"arr_time_local"`
+	ArrTimeGMT   time.Time `db:"arr_time_gmt" json:"arr_time_gmt"`
+	LineCode     string    `db:"line_code" json:"line_code"`
+	SeatNumber   string    `db:"number" json:"number"`
+	SeatClass    string    `db:"class" json:"class"`
+	Price        float64   `db:"price" json:"price"`
 }
 
 type RoleModel struct {

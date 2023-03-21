@@ -145,9 +145,8 @@ export const LinerModelsPage = () => {
       headerName: "Название",
       width: 200,
       editable: true,
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -170,6 +169,9 @@ export const LinerModelsPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -187,9 +189,8 @@ export const LinerModelsPage = () => {
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={'auto'} height={256} />;
 

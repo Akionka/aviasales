@@ -130,7 +130,7 @@ export const PurchasesPage = () => {
   const handleSearchQueryChange = (e) => {
     setSearchQuery(e.target.value);
   };
-  console.log(offices)
+
   const columns = [
     {
       field: "id",
@@ -173,9 +173,8 @@ export const PurchasesPage = () => {
       editable: true,
       type: "singleSelect",
       valueOptions: offices?.items?.map(o => {return {value: o.id, label: o.address}})
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -198,6 +197,9 @@ export const PurchasesPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -214,9 +216,8 @@ export const PurchasesPage = () => {
             />,
           ];
         },
-
-      })
-    }
+      }
+    ]
 
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;

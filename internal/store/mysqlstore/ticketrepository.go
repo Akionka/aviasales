@@ -162,7 +162,7 @@ ORDER BY dep_time`, id)
 	r.store.db.Get(&office, "SELECT b.* FROM ticket t INNER JOIN purchase p ON t.purchase_id = p.id INNER JOIN booking_office b ON p.booking_office_id = b.id WHERE t.id = ?", id)
 	r.store.db.Get(&cashier, "SELECT c.* FROM ticket t INNER JOIN purchase p ON t.purchase_id = p.id INNER JOIN cashier c ON p.cashier_id = c.id WHERE t.id = ?", id)
 
-	totalTime = flights[len(flights)-1].ArrTimeGMT.Sub(*flights[0].DepTimeGMT)
+	totalTime = flights[len(flights)-1].ArrTimeGMT.Sub(flights[0].DepTimeGMT)
 
 	return flights, &office, &cashier, &purchase, totalTime, nil
 }

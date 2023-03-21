@@ -217,9 +217,8 @@ export const CashiersPage = () => {
       renderEditCell: (props) => (
         <PasswordCell {...props} onClick={handlePasswordChangeClick} />
       ),
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -242,6 +241,9 @@ export const CashiersPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -259,9 +261,8 @@ export const CashiersPage = () => {
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 

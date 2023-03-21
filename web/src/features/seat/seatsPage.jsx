@@ -164,9 +164,8 @@ export const SeatsPage = () => {
         { value: "W", label: "Комфорт" },
         { value: "Y", label: "Эконом" },
       ],
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -189,6 +188,9 @@ export const SeatsPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -206,9 +208,8 @@ export const SeatsPage = () => {
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 

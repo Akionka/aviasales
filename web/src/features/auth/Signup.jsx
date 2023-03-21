@@ -1,4 +1,4 @@
-// Файл web\src\features\auth\Login.jsx содержит код формы авторизации
+// Файл web\src\features\auth\Signup.jsx содержит код формы регистрации
 import { Controller, useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, useLocation, useNavigate } from "react-router-dom";
@@ -27,7 +27,6 @@ const makeNameString = (name, min, max) => {
 }
 
 const includesAny = (str, chars) => {
-  console.log(chars.length)
   for (let i = 0; i < chars.length; i++) {
     if (str.includes(chars[i])) return true
   }
@@ -267,7 +266,7 @@ export const Signup = () => {
           {errors.serverError?.message && <Alert severity="error">{errors.serverError.message}</Alert>}
           <Grid container justify-content="flex-end">
             <Grid item>
-              <Link variant="body2" href="/signup">
+              <Link variant="body2" href="/login">
                 Авторизация
               </Link>
             </Grid>

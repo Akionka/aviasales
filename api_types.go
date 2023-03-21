@@ -117,11 +117,11 @@ func validPassword(value interface{}) error {
 }
 
 type Flight struct {
-	ID        int        `json:"id"`
-	DepDate   *time.Time `json:"dep_date"`
-	LineCode  string     `json:"line_code"`
-	IsHot     bool       `json:"is_hot"`
-	LinerCode string     `json:"liner_code"`
+	ID        int       `json:"id"`
+	DepDate   time.Time `json:"dep_date"`
+	LineCode  string    `json:"line_code"`
+	IsHot     bool      `json:"is_hot"`
+	LinerCode string    `json:"liner_code"`
 }
 
 func (f *Flight) Validate() error {
@@ -196,13 +196,13 @@ func (m *LinerModel) Validate() error {
 }
 
 type Purchase struct {
-	ID              int        `json:"id"`
-	Date            *time.Time `json:"date"`
-	BookingOfficeID int        `json:"booking_office_id"`
-	TotalPrice      float64    `json:"total_price"`
-	ContactPhone    string     `json:"contact_phone"`
-	ContactEmail    string     `json:"contact_email"`
-	CashierID       string     `json:"cashier_id"`
+	ID              int       `json:"id"`
+	Date            time.Time `json:"date"`
+	BookingOfficeID int       `json:"booking_office_id"`
+	TotalPrice      float64   `json:"total_price"`
+	ContactPhone    string    `json:"contact_phone"`
+	ContactEmail    string    `json:"contact_email"`
+	CashierID       string    `json:"cashier_id"`
 }
 
 func (p *Purchase) Validate() error {
@@ -234,13 +234,13 @@ func (s *Seat) Validate() error {
 }
 
 type Ticket struct {
-	ID                      int        `json:"id"`
-	PassengerLastName       string     `json:"passenger_last_name"`
-	PassengerGivenName      string     `json:"passenger_given_name"`
-	PassengerBirthDate      *time.Time `json:"passenger_birth_date"`
-	PassengerPassportNumber string     `json:"passenger_passport_number"`
-	PassengerSex            uint8      `json:"passenger_sex"`
-	PurchaseID              int        `json:"purchase_id"`
+	ID                      int       `json:"id"`
+	PassengerLastName       string    `json:"passenger_last_name"`
+	PassengerGivenName      string    `json:"passenger_given_name"`
+	PassengerBirthDate      time.Time `json:"passenger_birth_date"`
+	PassengerPassportNumber string    `json:"passenger_passport_number"`
+	PassengerSex            uint8     `json:"passenger_sex"`
+	PurchaseID              int       `json:"purchase_id"`
 }
 
 func (t *Ticket) Validate() error {

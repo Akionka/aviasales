@@ -144,7 +144,7 @@ export const AirportsPage = () => {
       editable: true,
       valueOptions: useMemo(() => timezones || [], [timezones]),
     }]
-    if (auth.user.role_id === 2) {
+    // if (auth.user.role_id === 2) {
       columns.push({
         field: "actions",
         headerName: "Действия",
@@ -168,6 +168,9 @@ export const AirportsPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -186,7 +189,7 @@ export const AirportsPage = () => {
         },
 
       })
-    }
+    // }
 
   if (isLoading || isLoadingTimezones)
     return <Skeleton variant="rectangular" width={512} height={512} />;

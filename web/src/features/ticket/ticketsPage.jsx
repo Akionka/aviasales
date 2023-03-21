@@ -189,9 +189,8 @@ export const TicketsPage = () => {
       width: 125,
       editable: true,
       type: "number",
-    }]
-    if (auth.user.role_id === 2) {
-      columns.push({
+    },
+    {
         field: "actions",
         headerName: "Действия",
         type: "actions",
@@ -214,6 +213,9 @@ export const TicketsPage = () => {
               />,
             ];
           }
+          if (auth.user.role_id !== 2) {
+            return []
+          }
           return [
             <GridActionsCellItem
               icon={<EditIcon />}
@@ -231,9 +233,8 @@ export const TicketsPage = () => {
           ];
         },
 
-      })
-    }
-
+      }
+    ]
   if (isLoading)
     return <Skeleton variant="rectangular" width={512} height={512} />;
 
@@ -297,7 +298,7 @@ export const TicketsPage = () => {
             }
           }}
           onProcessRowUpdateError={(error) => {
-            alert(`{error.length > 1 ? 'Поля' : 'Поле'} {Object.keys(error).join(', '))} {error.length > 1 ? 'заполнены' : 'заполнено'} неправильно`)
+            alert(error)
           }}
         />
       </Grid>
